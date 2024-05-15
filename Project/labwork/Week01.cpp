@@ -7,7 +7,6 @@ void VulkanBase::initWindow() {
 	window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan Milestone1: Tristan Soenen 2DAE19", nullptr, nullptr);
 }
 
-
 void VulkanBase::drawScene() 
 {
 	//triangle mesh here

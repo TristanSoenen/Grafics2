@@ -22,6 +22,14 @@ option(GLFW_INSTALL "Generate installation target" OFF)
 option(GLFW_DOCUMENT_INTERNALS "Include internals in documentation" OFF)
 FetchContent_MakeAvailable(glfw)
 
+
+FetchContent_Declare(
+  tinyobjloader
+  GIT_REPOSITORY https://github.com/tinyobjloader/tinyobjloader.git
+  GIT_TAG        v2.0.0rc13 # Specify the version you need
+  GIT_SHALLOW TRUE
+)
+FetchContent_MakeAvailable(tinyobjloader)
 # Find the required packages
 find_package(Vulkan REQUIRED)
 

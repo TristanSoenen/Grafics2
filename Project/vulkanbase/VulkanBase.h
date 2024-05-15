@@ -8,6 +8,7 @@
 #include <GLFW/glfw3native.h>
 #include "VulkanUtil.h"
 #include "Structs.h"
+#include "tiny_obj_loader.h"
 #include <iostream>
 #include <stdexcept>
 #include <vector>
@@ -22,14 +23,18 @@
 #include "Buffer.h"
 #include "Descriptor.h"
 #include "UniformBufferClass.h"
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <array>
 #include <chrono>
+#include <unordered_map>
 
-const int MAX_FRAMES_IN_FLIGHT = 2;
+
 const std::string MODEL_PATH = "models/viking_room.obj";
+const std::string TEXTURE_PATH = "textures/viking_room.png";
+const int MAX_FRAMES_IN_FLIGHT = 2;
 
 const std::vector<const char*> validationLayers = {
 	"VK_LAYER_KHRONOS_validation"
@@ -61,7 +66,49 @@ private:
 	//0, 1, 2, 2, 3, 0
 	//};
 
-	std::vector<Vertex> vertices = {
+	std::vector<Vertex> vertices;
+	std::vector<uint32_t> indices;
+
+	////Cube
+	//std::vector<Vertex> vertices = 
+	//{
+	//	{{-0.5f, 0.5f, 1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},   // Vertex 0
+	//	{{0.5f, 0.5f, 1.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},    // Vertex 1
+	//	{{0.5f, -0.5f, 1.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},   // Vertex 2
+	//	{{-0.5f, -0.5f, 1.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},  // Vertex 3
+
+	//	// Z plane
+	//	{{-0.5f, 0.5f, 2.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},   // Vertex 4
+	//	{{0.5f, 0.5f, 2.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},    // Vertex 5
+	//	{{0.5f, -0.5f, 2.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},   // Vertex 6
+	//	{{-0.5f, -0.5f, 2.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},   // Vertex 7
+	//};
+
+	//std::vector<uint32_t> indices = 
+	//{
+	//	//XY plane
+	//	0, 1, 2, // First triangle
+	//	2, 3, 0, // Second triangle
+
+	//	// Z plane
+	//	4, 5, 6, // First triangle
+	//	6, 7, 4, // Second triangle
+
+	//	// Connecting vertices between planes
+	//	0, 1, 5, // First triangle
+	//	5, 4, 0, // Second triangle
+
+	//	1, 2, 6, // First triangle
+	//	6, 5, 1, // Second triangle
+
+	//	2, 3, 7, // First triangle
+	//	7, 6, 2, // Second triangle
+
+	//	3, 0, 4, // First triangle
+	//	4, 7, 3,  // Second triangle
+	//};
+
+	/*std::vector<Vertex> vertices = {
 	{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
 	{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
 	{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
@@ -76,7 +123,7 @@ private:
 	std::vector<uint32_t> indices = {
 		0, 1, 2, 2, 3, 0,
 		4, 5, 6, 6, 7, 4
-	};
+	};*/
 
 	VkBuffer vertexBuffer;
 	VkDeviceMemory vertexBufferMemory;
@@ -125,6 +172,7 @@ private:
 		createDepthResources();
 		createFrameBuffers();
 		//createTextureImage();
+		LoadModel();
 		m_Bufferclass.createVertexBuffer(device, vertices, vertexBuffer, vertexBufferMemory);
 		m_Bufferclass.createIndexBuffer(device, indices, indexBuffer, indexBufferMemory);
 		createUniformBuffers();
@@ -194,6 +242,52 @@ private:
 
 		glfwDestroyWindow(window);
 		glfwTerminate();
+	}
+
+	void LoadModel()
+	{
+		tinyobj::attrib_t attrib;
+		std::vector<tinyobj::shape_t> shapes;
+		std::vector<tinyobj::material_t> materials;
+		std::string warn, err;
+
+		if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, MODEL_PATH.c_str())) 
+		{
+			throw std::runtime_error(warn + err);
+		}
+
+		//std::unordered_map<Vertex, uint32_t> uniqueVertices{};
+
+		for (const auto& shape : shapes)
+		{
+			for (const auto& index : shape.mesh.indices)
+			{
+				Vertex vertex{};
+
+				vertex.pos = {
+				attrib.vertices[3 * index.vertex_index + 0],
+				attrib.vertices[3 * index.vertex_index + 1],
+				attrib.vertices[3 * index.vertex_index + 2]
+				};
+
+				vertex.texCoord = {
+					attrib.texcoords[2 * index.texcoord_index + 0],
+					1.0f - attrib.texcoords[2 * index.texcoord_index + 1]
+				};
+
+				vertex.color = { 1.0f, 1.0f, 1.0f };
+
+				//if (uniqueVertices.count(vertex) == 0) 
+				//{
+				//	uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
+				//	vertices.push_back(vertex);
+				//}
+
+
+				vertices.push_back(vertex);
+				indices.push_back(indices.size());
+			}
+		}
 	}
 
 	void createDepthResources()

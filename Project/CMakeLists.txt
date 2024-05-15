@@ -36,11 +36,26 @@ set(SOURCES
     "labwork/Week04.cpp" 
     "labwork/Week05.cpp"
     "labwork/Week06.cpp"
- "MachineShader.h" "MachineShader.cpp" "Mesh.h" "Mesh.cpp" "Structs.h" "Buffer.h" "Buffer.cpp" "CommandPool.h" "CommandPool.cpp" "Camera.h" "Camera.cpp"   "Descriptor.h" "Descriptor.cpp" "UniformBufferClass.h" "UniformBufferClass.cpp")
+    "MachineShader.h"
+    "MachineShader.cpp"
+    "Mesh.h" 
+    "Mesh.cpp"
+    "Structs.h"
+    "Buffer.h"
+    "Buffer.cpp"
+    "CommandPool.h" 
+    "CommandPool.cpp" 
+    "Camera.h" 
+    "Camera.cpp"   
+    "Descriptor.h" 
+    "Descriptor.cpp" 
+    "UniformBufferClass.h" 
+    "UniformBufferClass.cpp"
+)
 
 # Create the executable
 add_executable(${PROJECT_NAME} ${SOURCES} ${GLSL_SOURCE_FILES} )
 add_dependencies(${PROJECT_NAME} Shaders)
 # Link libraries
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(${PROJECT_NAME} PRIVATE ${Vulkan_LIBRARIES} glfw)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${Vulkan_LIBRARIES} glfw tinyobjloader)
