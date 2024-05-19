@@ -12,6 +12,15 @@ void VulkanBase::pickPhysicalDevice() {
 	std::vector<VkPhysicalDevice> devices{ deviceCount };
 	vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
+	//multisampeling
+	for (const auto& device : devices) {
+		if (isDeviceSuitable(device)) {
+			physicalDevice = device;
+			msaaSamples = getMaxUsableSampleCount();
+			break;
+		}
+	}
+
 	if (deviceCount == 0) {
 		throw std::runtime_error("failed to find GPUs with Vulkan support!");
 	}
