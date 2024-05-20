@@ -63,7 +63,7 @@ void VulkanBase::drawFrame(uint32_t imageIndex)
 
 	std::array<VkClearValue, 2> clearValues{};
 	clearValues[0].color = { {0.0f, 0.0f, 0.0f, 1.0f} };
-	clearValues[1].depthStencil = { 3000.0f, 0 };
+	clearValues[1].depthStencil = { 1.0f, 0 };
 
 	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
 	renderPassInfo.pClearValues = clearValues.data();
@@ -77,7 +77,7 @@ void VulkanBase::drawFrame(uint32_t imageIndex)
 	viewport.width = (float)swapChainExtent.width;
 	viewport.height = (float)swapChainExtent.height;
 	viewport.minDepth = 0.0f;
-	viewport.maxDepth = 3000.0f;
+	viewport.maxDepth = 1.0f;
 	vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 
 	VkRect2D scissor{};
