@@ -59,17 +59,6 @@ public:
 private:
 
 	VkSampleCountFlagBits msaaSamples = VK_SAMPLE_COUNT_1_BIT;
-	//std::vector<Vertex> vertices = {
-	//{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-	//{{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-	//{{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
-	//{{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
-	//};
-
-	//std::vector<uint16_t> indices = {
-	//0, 1, 2, 2, 3, 0
-	//};
-
 	std::vector<Vertex> vertices;
 	std::vector<uint32_t> indices;
 
@@ -112,31 +101,6 @@ private:
 	//	4, 7, 3,  // Second triangle
 	//};
 
-
-	//Mesh mesh1{ vertices, indices };
-
-
-	//std::vector<Vertex> vertices1 = {
-	//{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-	//{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-	//{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-	//{{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
-
-	//{{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-	//{{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-	//{{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-	//{{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}
-	//};
-
-	//std::vector<uint32_t> indices1 = {
-	//	0, 1, 2, 2, 3, 0,
-	//	4, 5, 6, 6, 7, 4
-	//};
-	//Mesh mesh2{ vertices1, indices1 };
-
-	//std::vector<Mesh> meshes = { mesh1 };
-
-
 	VkBuffer vertexBuffer;
 	VkDeviceMemory vertexBufferMemory;
 	VkBuffer indexBuffer;
@@ -163,10 +127,6 @@ private:
 
 	Camera* camera;
 	float lastFrameTime = 0.0f;
-	bool mousePressed = false;
-
-	
-
 	void initVulkan() 
 	{
 
