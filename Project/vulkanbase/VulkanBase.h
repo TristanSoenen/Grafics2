@@ -30,9 +30,10 @@
 #include <array>
 #include <chrono>
 #include <unordered_map>
+#include "Camera.h"
 
 
-const std::string MODEL_PATH = "models/viking_room.obj";
+const std::string MODEL_PATH = "resources/vehicle.obj";
 const std::string TEXTURE_PATH = "textures/viking_room.png";
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
@@ -43,6 +44,8 @@ const std::vector<const char*> validationLayers = {
 const std::vector<const char*> deviceExtensions = {
 	VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
+
+
 
 class VulkanBase {
 public:
@@ -67,64 +70,72 @@ private:
 	//0, 1, 2, 2, 3, 0
 	//};
 
-	//std::vector<Vertex> vertices;
-	//std::vector<uint32_t> indices;
+	std::vector<Vertex> vertices;
+	std::vector<uint32_t> indices;
 
-	//Cube
-	std::vector<Vertex> vertices = 
-	{
-		{{-0.5f, 0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},   // Vertex 0
-		{{0.5f, 0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},    // Vertex 1
-		{{0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},   // Vertex 2
-		{{-0.5f, -0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},  // Vertex 3
+	////Cube
+	//std::vector<Vertex> vertices = 
+	//{
+	//	{{-1, 1, -4.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},   // Vertex 0
+	//	{{1, 1, -4.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},    // Vertex 1
+	//	{{1, -1, -4.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},   // Vertex 2
+	//	{{-1, -1, -4.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},  // Vertex 3
 
-		// Z plane
-		{{-0.5f, 0.5f, 1.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},   // Vertex 4
-		{{0.5f, 0.5f, 1.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},    // Vertex 5
-		{{0.5f, -0.5f, 1.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},   // Vertex 6
-		{{-0.5f, -0.5f, 1.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},   // Vertex 7
-	};
+	//	 //Z plane
+	//	{{-1.0f, 1.0f, -5.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},   // Vertex 4
+	//	{{1.0f, 1.0f, -5.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},    // Vertex 5
+	//	{{1.0f, -1.0f, -5.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},   // Vertex 6
+	//	{{-1.0f, -1.0f, -5.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},   // Vertex 7
+	//};
 
-	std::vector<uint32_t> indices = 
-	{
-		//XY plane
-		0, 1, 2, // First triangle
-		2, 3, 0, // Second triangle
+	//std::vector<uint32_t> indices = 
+	//{
+	//	//XY plane
+	//	0, 1, 2, // First triangle
+	//	2, 3, 0, // Second triangle
 
-		// Z plane
-		4, 5, 6, // First triangle
-		6, 7, 4, // Second triangle
+	//	//Z plane
+	//	4, 5, 6, // First triangle
+	//	6, 7, 4, // Second triangle
 
-		// Connecting vertices between planes
-		0, 1, 5, // First triangle
-		5, 4, 0, // Second triangle
+	//	//Connecting vertices between planes
+	//	0, 1, 5, // First triangle
+	//	5, 4, 0, // Second triangle
 
-		1, 2, 6, // First triangle
-		6, 5, 1, // Second triangle
+	//	1, 2, 6, // First triangle
+	//	6, 5, 1, // Second triangle
 
-		2, 3, 7, // First triangle
-		7, 6, 2, // Second triangle
+	//	2, 3, 7, // First triangle
+	//	7, 6, 2, // Second triangle
 
-		3, 0, 4, // First triangle
-		4, 7, 3,  // Second triangle
-	};
+	//	3, 0, 4, // First triangle
+	//	4, 7, 3,  // Second triangle
+	//};
 
-	/*std::vector<Vertex> vertices = {
-	{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-	{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-	{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-	{{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
 
-	{{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
-	{{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-	{{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
-	{{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}
-	};
+	//Mesh mesh1{ vertices, indices };
 
-	std::vector<uint32_t> indices = {
-		0, 1, 2, 2, 3, 0,
-		4, 5, 6, 6, 7, 4
-	};*/
+
+	//std::vector<Vertex> vertices1 = {
+	//{{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+	//{{0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
+	//{{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
+	//{{-0.5f, 0.5f, 0.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},
+
+	//{{-0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},
+	//{{0.5f, -0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
+	//{{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},
+	//{{-0.5f, 0.5f, -0.5f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}}
+	//};
+
+	//std::vector<uint32_t> indices1 = {
+	//	0, 1, 2, 2, 3, 0,
+	//	4, 5, 6, 6, 7, 4
+	//};
+	//Mesh mesh2{ vertices1, indices1 };
+
+	//std::vector<Mesh> meshes = { mesh1 };
+
 
 	VkBuffer vertexBuffer;
 	VkDeviceMemory vertexBufferMemory;
@@ -149,6 +160,12 @@ private:
 	VkImage colorImage;
 	VkDeviceMemory colorImageMemory;
 	VkImageView colorImageView;
+
+	Camera* camera;
+	float lastFrameTime = 0.0f;
+	bool mousePressed = false;
+
+	
 
 	void initVulkan() 
 	{
@@ -177,10 +194,13 @@ private:
 		createColorResources();
 		createDepthResources();
 		createFrameBuffers();
-		//createTextureImage();
-		//LoadModel();
+
+		LoadModel();
+
 		m_Bufferclass.createVertexBuffer(device, vertices, vertexBuffer, vertexBufferMemory);
 		m_Bufferclass.createIndexBuffer(device, indices, indexBuffer, indexBufferMemory);
+		
+
 		createUniformBuffers();
 		//m_UniBufferClass.createUniformBuffers(device, uniformBuffers, uniformBuffersMemory, uniformBuffersMapped);
 		m_Descriptorclass.createDescriptorPool(device, descriptorPool);
@@ -189,13 +209,18 @@ private:
 
 		// week 06
 		createSyncObjects();
+
 	}
 
 	void mainLoop() {
 		while (!glfwWindowShouldClose(window)) {
 			glfwPollEvents();
 			//camera
-
+			float currentFrameTime = glfwGetTime();
+			float deltaTime = currentFrameTime - lastFrameTime;
+			lastFrameTime = currentFrameTime;
+			camera->processKeyboard(deltaTime);
+			camera->processMouseMovement(window);
 			// week 06
 			drawFrame();
 		}
@@ -204,6 +229,7 @@ private:
 
 	void cleanup() 
 	{
+		delete camera;
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 			vkDestroyBuffer(device, uniformBuffers[i], nullptr);
 			vkFreeMemory(device, uniformBuffersMemory[i], nullptr);
@@ -254,6 +280,29 @@ private:
 
 		glfwDestroyWindow(window);
 		glfwTerminate();
+	}
+
+	// camera 
+	void mouseEvent(GLFWwindow* window, int button, int action, int mods)
+	{
+		if (button == GLFW_MOUSE_BUTTON_RIGHT)
+		{
+			if (action == GLFW_PRESS)
+			{
+				// Get initial mouse position
+				std::cout << " RightClicked\n";
+				double xpos, ypos;
+				glfwGetCursorPos(window, &xpos, &ypos);
+				camera->SetMouseDown(true);
+			}
+			else if(action == GLFW_RELEASE)
+			{
+				// Reset drag start when mouse button is released
+				std::cout << " RightClicked released\n";
+				camera->SetMouseDown(false);
+			}
+		}
+		
 	}
 	//multisampeling
 	VkSampleCountFlagBits getMaxUsableSampleCount() 
@@ -431,9 +480,9 @@ private:
 		float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
 		UniformBufferObject ubo{};
-		ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-		ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-		ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 10.0f);
+		ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 1.f));
+		ubo.view = camera->getViewMatrix(); //glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+		ubo.proj = /*camera.GetProjectionMatrix()*/glm::perspective(glm::radians(45.0f), swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 20.0f);
 		ubo.proj[1][1] *= -1;
 
 		memcpy(uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
