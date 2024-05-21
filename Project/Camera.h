@@ -80,29 +80,6 @@ namespace dae
 				origin -= deltaTime * cameraSpeed * right;
 			if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 				origin += deltaTime * cameraSpeed * right;
-		//	const float deltaTime = pTimer->GetElapsed();
-
-		//	//Camera Update Logic
-		//	//...
-
-		//	const uint8_t* pKeyboardState = SDL_GetKeyboardState(nullptr);
-
-		//	if (pKeyboardState[SDL_SCANCODE_W])
-		//	{
-		//		origin += pTimer->GetElapsed() * cameraSpeed * forward;
-		//	}
-		//	if (pKeyboardState[SDL_SCANCODE_S])
-		//	{
-		//		origin -= pTimer->GetElapsed() * cameraSpeed * forward;
-		//	}
-		//	if (pKeyboardState[SDL_SCANCODE_A])
-		//	{
-		//		origin -= pTimer->GetElapsed() * cameraSpeed * right;
-		//	}
-		//	if (pKeyboardState[SDL_SCANCODE_D])
-		//	{
-		//		origin += pTimer->GetElapsed() * cameraSpeed * right;
-		//	}
 
 		//	//Mouse Input
 		//	int mouseX{}, mouseY{};
@@ -128,7 +105,7 @@ namespace dae
 		//		totalPitch -= mouseY * pTimer->GetElapsed();
 		//	}
 
-		//	//Update Matrices
+			//Update Matrices
 			CalculateViewMatrix();
 			CalculateProjectionMatrix(); //Try to optimize this - should only be called once or when fov/aspectRatio changes
 		}
