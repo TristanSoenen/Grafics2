@@ -81,6 +81,11 @@ namespace dae
 			if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 				origin += deltaTime * cameraSpeed * right;
 
+
+			if (GLFW_MOUSE_BUTTON_LEFT)
+			{
+				//totalYaw -= ;
+			}
 		//	//Mouse Input
 		//	int mouseX{}, mouseY{};
 		//	const uint32_t mouseState = SDL_GetRelativeMouseState(&mouseX, &mouseY);

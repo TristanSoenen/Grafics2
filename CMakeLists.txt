@@ -30,11 +30,20 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(tinyobjloader)
 
+FetchContent_Declare(
+  stb
+  GIT_REPOSITORY https://github.com/jschmidt42/stb-cmake.git
+  GIT_TAG
+  GIT_SHALLOW TRUE
+)
 
-
-
-
-
+FetchContent_GetProperties(stb)
+if (NOT stb_POPULATED)
+FetchContent_Populate(stb)
+endif()
+FetchContent_MakeAvailable(stb)
+add_library(stb INTERFACE)
+target_include_directories(stb INTERFACE ${stb_SOURCE_DIR})
 # Find the required packages
 find_package(Vulkan REQUIRED)
 

@@ -6,12 +6,6 @@ void VulkanBase::initWindow() {
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 	window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan Milestone1: Tristan Soenen 2DAE19", nullptr, nullptr);
 	glfwSetWindowUserPointer(window, this);
-	glfwSetMouseButtonCallback(window, [](GLFWwindow* window, int button, int action, int mods) 
-	{
-		void* pUser = glfwGetWindowUserPointer(window);
-		VulkanBase* vBase = static_cast<VulkanBase*>(pUser);
-		vBase->mouseEvent(window, button, action, mods);
-	});
 
 
 }

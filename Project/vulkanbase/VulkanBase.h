@@ -9,6 +9,7 @@
 #include "VulkanUtil.h"
 #include "Structs.h"
 #include "tiny_obj_loader.h"
+//#include "stb_image.h"
 #include <iostream>
 #include <stdexcept>
 #include <vector>
@@ -31,6 +32,7 @@
 #include <chrono>
 #include <unordered_map>
 #include "Camera.h"
+
 
 
 const std::string MODEL_PATH = "resources/vehicle.obj";
@@ -241,29 +243,6 @@ private:
 		glfwDestroyWindow(window);
 		glfwTerminate();
 	}
-
-	// camera 
-	void mouseEvent(GLFWwindow* window, int button, int action, int mods)
-	{
-		//if (button == GLFW_MOUSE_BUTTON_RIGHT)
-		//{
-		//	if (action == GLFW_PRESS)
-		//	{
-		//		// Get initial mouse position
-		//		std::cout << " RightClicked\n";
-		//		double xpos, ypos;
-		//		glfwGetCursorPos(window, &xpos, &ypos);
-		//		camera->SetMouseDown(true);
-		//	}
-		//	else if(action == GLFW_RELEASE)
-		//	{
-		//		// Reset drag start when mouse button is released
-		//		std::cout << " RightClicked released\n";
-		//		camera->SetMouseDown(false);
-		//	}
-		//}
-		
-	}
 	//multisampeling
 	VkSampleCountFlagBits getMaxUsableSampleCount() 
 	{
@@ -287,8 +266,6 @@ private:
 
 		createImage(swapChainExtent.width, swapChainExtent.height, msaaSamples, colorFormat, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, colorImage, colorImageMemory);
 		colorImageView = createImageView(colorImage, colorFormat, VK_IMAGE_ASPECT_COLOR_BIT);
-
-
 	}
 
 	//loading Model
