@@ -62,7 +62,7 @@ private:
 	std::vector<Vertex> vertices;
 	std::vector<uint32_t> indices;
 
-	////Cube
+	//////Cube
 	//std::vector<Vertex> vertices = 
 	//{
 	//	{{-1, 1, -4.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},   // Vertex 0
@@ -125,7 +125,7 @@ private:
 	VkDeviceMemory colorImageMemory;
 	VkImageView colorImageView;
 
-	Camera* camera;
+	dae::Camera camera;
 	float lastFrameTime = 0.0f;
 	void initVulkan() 
 	{
@@ -179,8 +179,9 @@ private:
 			float currentFrameTime = glfwGetTime();
 			float deltaTime = currentFrameTime - lastFrameTime;
 			lastFrameTime = currentFrameTime;
-			camera->processKeyboard(deltaTime);
-			camera->processMouseMovement(window);
+			camera.Update(deltaTime, window);
+			//camera->processKeyboard(deltaTime);
+			//camera->processMouseMovement(window);
 			// week 06
 			drawFrame();
 		}
@@ -189,7 +190,6 @@ private:
 
 	void cleanup() 
 	{
-		delete camera;
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 			vkDestroyBuffer(device, uniformBuffers[i], nullptr);
 			vkFreeMemory(device, uniformBuffersMemory[i], nullptr);
@@ -245,23 +245,23 @@ private:
 	// camera 
 	void mouseEvent(GLFWwindow* window, int button, int action, int mods)
 	{
-		if (button == GLFW_MOUSE_BUTTON_RIGHT)
-		{
-			if (action == GLFW_PRESS)
-			{
-				// Get initial mouse position
-				std::cout << " RightClicked\n";
-				double xpos, ypos;
-				glfwGetCursorPos(window, &xpos, &ypos);
-				camera->SetMouseDown(true);
-			}
-			else if(action == GLFW_RELEASE)
-			{
-				// Reset drag start when mouse button is released
-				std::cout << " RightClicked released\n";
-				camera->SetMouseDown(false);
-			}
-		}
+		//if (button == GLFW_MOUSE_BUTTON_RIGHT)
+		//{
+		//	if (action == GLFW_PRESS)
+		//	{
+		//		// Get initial mouse position
+		//		std::cout << " RightClicked\n";
+		//		double xpos, ypos;
+		//		glfwGetCursorPos(window, &xpos, &ypos);
+		//		camera->SetMouseDown(true);
+		//	}
+		//	else if(action == GLFW_RELEASE)
+		//	{
+		//		// Reset drag start when mouse button is released
+		//		std::cout << " RightClicked released\n";
+		//		camera->SetMouseDown(false);
+		//	}
+		//}
 		
 	}
 	//multisampeling
@@ -441,8 +441,8 @@ private:
 
 		UniformBufferObject ubo{};
 		ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(0.0f), glm::vec3(0.0f, 0.0f, 1.f));
-		ubo.view = camera->getViewMatrix();
-		ubo.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 20.0f);
+		ubo.view = camera.GetViewMatrix();
+		ubo.proj = camera.GetProjectionMatrix();//glm::perspective(glm::radians(45.0f), swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 20.0f);
 		ubo.proj[1][1] *= -1;
 
 		memcpy(uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));

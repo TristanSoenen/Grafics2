@@ -4,93 +4,133 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 
-class Camera 
+namespace dae
 {
-public:
-    Camera(GLFWwindow* window, glm::vec3 position, glm::vec3 up, float yaw, float pitch)
-        : window(window), position(position), up(up), yaw(yaw), pitch(pitch), front(glm::vec3(0.0f, 0.0f, -1.0f)),
-        movementSpeed(2.5f), sensitivity(0.1f) 
-    {
-        updateCameraVectors();
-    }
+	struct Camera
+	{
+		Camera() = default;
 
-    glm::mat4 getViewMatrix() const {
-        return glm::lookAt(position, position + front, up);
-    }
+		Camera(const glm::vec3& _origin, float _fovAngle) :
+			origin{ _origin },
+			fovAngle{ _fovAngle }
+		{
+		}
 
-    void processKeyboard(float deltaTime) {
-        float velocity = movementSpeed * deltaTime;
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-            position += front * velocity;
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-            position -= front * velocity;
-        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-            position -= right * velocity;
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-            position += right * velocity;
-    }
+		glm::vec3 origin{};
+		float fovAngle{ 90.f };
+		float fov{ tanf(glm::radians(fovAngle) / 2.f) };
+		const float aspect_Ratio{ 1.33333f };
+
+		float nearPlane{ 0.1f };
+		float farPlane{ 100.0f };
+
+		const float cameraSpeed{ 20.0f };
+		const float cameraSpeedMouse{ 10.0f };
+
+		glm::vec3 forward{ 0, 0, 1 };
+		glm::vec3 up{ 0, 1, 0 };
+		glm::vec3 right{ 1, 0, 0 };
+
+		float totalPitch{};
+		float totalYaw{};
+
+		glm::mat4 invViewMatrix{};
+		glm::mat4 viewMatrix{};
+		glm::mat4 projectionMatrix{};
 
 
-    void processMouseMovement(GLFWwindow* window)
-    {
-        if (mouseDown == false)
-        {
-            return;
-        }
-        double xpos, ypos;
-        glfwGetCursorPos(window, &xpos, &ypos);
+		void Initialize(float _fovAngle = 90.f, glm::vec3 _origin = { 0.f,0.f,0.f })
+		{
+			fovAngle = _fovAngle;
+			fov = tanf(glm::radians(_fovAngle) / 2.f);
 
-        if (firstMouse) {
-            lastX = static_cast<float>(xpos);
-            lastY = static_cast<float>(ypos);
-            firstMouse = false;
-        }
+			origin = _origin;
+		}
 
-        float xoffset = static_cast<float>(xpos) - lastX;
-        lastX = static_cast<float>(xpos);
+		void CalculateViewMatrix()
+		{
+			glm::vec3 front;
+			front.x = cos(glm::radians(totalYaw)) * cos(glm::radians(totalPitch));
+			front.y = sin(glm::radians(totalPitch));
+			front.z = sin(glm::radians(totalYaw)) * cos(glm::radians(totalPitch));
+			forward = glm::normalize(front);
 
-        xoffset *= sensitivity;
+			right = glm::normalize(glm::cross(forward, up));
+			up = glm::normalize(glm::cross(right, forward));
 
-        yaw += xoffset;
+			viewMatrix = glm::lookAt(origin, origin + forward, up);
+		}
 
-        // Constrain yaw to keep it within bounds
-        if (yaw > 360.0f) yaw -= 360.0f;
-        if (yaw < 0.0f) yaw += 360.0f;
+		void CalculateProjectionMatrix()
+		{
+			projectionMatrix = glm::perspective(glm::radians(fovAngle), aspect_Ratio, nearPlane, farPlane);
+		}
 
-        updateCameraVectors();
-    }
+		glm::mat4 GetViewMatrix() const { return viewMatrix; }
+		glm::mat4 GetProjectionMatrix() const { return projectionMatrix; }
 
-    void SetMouseDown(bool isDown)
-    {
-        mouseDown = isDown;
-    }
+		void Update(float deltaTime, GLFWwindow* window)
+		{
 
-private:
-    GLFWwindow* window;
-    glm::vec3 position;
-    glm::vec3 front;
-    glm::vec3 up;
-    glm::vec3 right;
-    glm::vec3 worldUp;
-    float yaw;
-    float pitch;
-    float movementSpeed;
-    float lastX = 400.0f;
-    float lastY = 300.0f;
-    float sensitivity = 0.1f;
-    bool firstMouse = false;
-    bool mouseDown;
+			if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+				origin += deltaTime * cameraSpeed * forward;
+			if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+				origin -= deltaTime * cameraSpeed * forward;
+			if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+				origin -= deltaTime * cameraSpeed * right;
+			if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+				origin += deltaTime * cameraSpeed * right;
+		//	const float deltaTime = pTimer->GetElapsed();
 
-    glm::vec2 dragStart;
+		//	//Camera Update Logic
+		//	//...
 
-    void updateCameraVectors() 
-    {
-        glm::vec3 front;
-        front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-        front.y = sin(glm::radians(pitch));
-        front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-        this->front = glm::normalize(front);
-        right = glm::normalize(glm::cross(front, up));
-        up = glm::normalize(glm::cross(right, front));
-    }
-};
+		//	const uint8_t* pKeyboardState = SDL_GetKeyboardState(nullptr);
+
+		//	if (pKeyboardState[SDL_SCANCODE_W])
+		//	{
+		//		origin += pTimer->GetElapsed() * cameraSpeed * forward;
+		//	}
+		//	if (pKeyboardState[SDL_SCANCODE_S])
+		//	{
+		//		origin -= pTimer->GetElapsed() * cameraSpeed * forward;
+		//	}
+		//	if (pKeyboardState[SDL_SCANCODE_A])
+		//	{
+		//		origin -= pTimer->GetElapsed() * cameraSpeed * right;
+		//	}
+		//	if (pKeyboardState[SDL_SCANCODE_D])
+		//	{
+		//		origin += pTimer->GetElapsed() * cameraSpeed * right;
+		//	}
+
+		//	//Mouse Input
+		//	int mouseX{}, mouseY{};
+		//	const uint32_t mouseState = SDL_GetRelativeMouseState(&mouseX, &mouseY);
+
+		//	//left mouse and right mouse together
+		//	if (mouseState == 5)
+		//	{
+		//		origin -= mouseY * pTimer->GetElapsed() * up * cameraSpeedMouse;
+		//	}
+
+		//	//left mouse
+		//	if (mouseState == 1)
+		//	{
+		//		totalYaw -= mouseX * pTimer->GetElapsed();
+		//		origin -= mouseY * pTimer->GetElapsed() * forward * cameraSpeedMouse;
+		//	}
+
+		//	//right mouse
+		//	if (mouseState == 4)
+		//	{
+		//		totalYaw -= mouseX * pTimer->GetElapsed();
+		//		totalPitch -= mouseY * pTimer->GetElapsed();
+		//	}
+
+		//	//Update Matrices
+			CalculateViewMatrix();
+			CalculateProjectionMatrix(); //Try to optimize this - should only be called once or when fov/aspectRatio changes
+		}
+	};
+}
