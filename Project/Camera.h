@@ -8,14 +8,12 @@ namespace dae
 {
 	struct Camera
 	{
-		Camera() = default;
-
-		Camera(const glm::vec3& _origin, float _fovAngle) :
+		Camera(GLFWwindow* window, const glm::vec3& _origin, float _fovAngle) :
 			origin{ _origin },
 			fovAngle{ _fovAngle }
 		{
-		}
-
+			glfwSetWindowUserPointer(window, this);
+		}GLFWwindow* window;
 		glm::vec3 origin{};
 		float fovAngle{ 90.f };
 		float fov{ tanf(glm::radians(fovAngle) / 2.f) };
@@ -82,8 +80,9 @@ namespace dae
 				origin += deltaTime * cameraSpeed * right;
 
 
-			if (GLFW_MOUSE_BUTTON_LEFT)
+			if (GLFW_MOUSE_BUTTON_LEFT == GLFW_PRESS)
 			{
+				std::cout << "left button";
 				//totalYaw -= ;
 			}
 		//	//Mouse Input

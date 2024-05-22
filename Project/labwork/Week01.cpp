@@ -5,9 +5,6 @@ void VulkanBase::initWindow() {
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 	window = glfwCreateWindow(WIDTH, HEIGHT, "Vulkan Milestone1: Tristan Soenen 2DAE19", nullptr, nullptr);
-	glfwSetWindowUserPointer(window, this);
-
-
 }
 
 void VulkanBase::drawScene() 

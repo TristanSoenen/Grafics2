@@ -39,8 +39,10 @@ void VulkanBase::pickPhysicalDevice() {
 
 bool VulkanBase::isDeviceSuitable(VkPhysicalDevice device) {
 	QueueFamilyIndices indices = findQueueFamilies(device);
+	VkPhysicalDeviceFeatures supportedFeatures;
+	vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
 	bool extensionsSupported = checkDeviceExtensionSupport(device);
-	return indices.isComplete() && extensionsSupported;
+	return indices.isComplete() && extensionsSupported && supportedFeatures.samplerAnisotropy;
 
 }
 
@@ -66,6 +68,7 @@ void VulkanBase::createLogicalDevice() {
 	queueCreateInfo.queueCount = 1;
 
 	VkPhysicalDeviceFeatures deviceFeatures{};
+	deviceFeatures.samplerAnisotropy = true;
 
 	VkDeviceCreateInfo createInfo{};
 	createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;

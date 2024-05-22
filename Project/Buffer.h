@@ -13,6 +13,9 @@ public:
 	uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 	void createBuffer(const VkDevice& device, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties,
 		VkBuffer& buffer, VkDeviceMemory& bufferMemory);
+
+	VkCommandBuffer beginSingleTimeCommands(const VkDevice& device);
+	void endSingleTimeCommands(const VkDevice& device, VkCommandBuffer commandBuffer);
 	void copyBuffer(const VkDevice& device, VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 private:
 	VkPhysicalDevice m_PhysicalDevice;

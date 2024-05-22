@@ -1,6 +1,7 @@
+#include "vulkanbase/VulkanBase.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
-#include "vulkanbase/VulkanBase.h"
+
 
 int main() {
 	// DISABLE_LAYER_AMD_SWITCHABLE_GRAPHICS_1 = 1
