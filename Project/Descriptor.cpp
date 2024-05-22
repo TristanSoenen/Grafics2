@@ -22,7 +22,14 @@ void Descriptor::CreateDescriptorSetLayout(const VkDevice& device, VkDescriptorS
 	samplerLayoutBinding.pImmutableSamplers = nullptr;
 	samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-	std::array<VkDescriptorSetLayoutBinding, 2> bindings = { uboLayoutBinding, samplerLayoutBinding };
+	VkDescriptorSetLayoutBinding normalLayoutBinding{};
+	normalLayoutBinding.binding = 2; //is dit juist??
+	normalLayoutBinding.descriptorCount = 1;
+	normalLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	normalLayoutBinding.pImmutableSamplers = nullptr;
+	normalLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+
+	std::array<VkDescriptorSetLayoutBinding, 3> bindings = { uboLayoutBinding, samplerLayoutBinding, normalLayoutBinding };
 	VkDescriptorSetLayoutCreateInfo layoutInfo{};
 	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 	layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
@@ -33,7 +40,7 @@ void Descriptor::CreateDescriptorSetLayout(const VkDevice& device, VkDescriptorS
 	}
 }
 
-void Descriptor::createDescriptorSets(const VkDevice& device, std::vector<VkBuffer>& uniformBuffers, VkDescriptorPool& descriptorPool, std::vector<VkDescriptorSet>& descriptorSets, VkDescriptorSetLayout& descriptorSetLayout, VkImageView& textureImageView, VkSampler& textureSampler)
+void Descriptor::createDescriptorSets(const VkDevice& device, std::vector<VkBuffer>& uniformBuffers, VkDescriptorPool& descriptorPool, std::vector<VkDescriptorSet>& descriptorSets, VkDescriptorSetLayout& descriptorSetLayout, VkImageView& textureImageView, VkSampler& textureSampler, VkImageView& textureNormalView, VkSampler& textureNormalSampler)
 {
 	std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, descriptorSetLayout);
 	VkDescriptorSetAllocateInfo allocInfo{};
@@ -60,7 +67,12 @@ void Descriptor::createDescriptorSets(const VkDevice& device, std::vector<VkBuff
 		imageInfo.imageView = textureImageView;
 		imageInfo.sampler = textureSampler;
 
-		std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
+		VkDescriptorImageInfo imageNormalInfo{};
+		imageNormalInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		imageNormalInfo.imageView = textureNormalView;
+		imageNormalInfo.sampler = textureNormalSampler;
+
+		std::array<VkWriteDescriptorSet, 3> descriptorWrites{}; //pool voor alle buffers
 
 		descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		descriptorWrites[0].dstSet = descriptorSets[i];
@@ -78,36 +90,27 @@ void Descriptor::createDescriptorSets(const VkDevice& device, std::vector<VkBuff
 		descriptorWrites[1].descriptorCount = 1;
 		descriptorWrites[1].pImageInfo = &imageInfo;
 
+		descriptorWrites[2].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		descriptorWrites[2].dstSet = descriptorSets[i];
+		descriptorWrites[2].dstBinding = 2; //check shader layout moet hetzelfde zijn.
+		descriptorWrites[2].dstArrayElement = 0;
+		descriptorWrites[2].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		descriptorWrites[2].descriptorCount = 1;
+		descriptorWrites[2].pImageInfo = &imageNormalInfo;
+
 		vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
-		//VkDescriptorBufferInfo bufferInfo{};
-		//bufferInfo.buffer = uniformBuffers[i];
-		//bufferInfo.offset = 0;
-		//bufferInfo.range = sizeof(UniformBufferObject);
-
-		//VkWriteDescriptorSet descriptorWrite{};
-		//descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		//descriptorWrite.dstSet = descriptorSets[i];
-		//descriptorWrite.dstBinding = 0;
-		//descriptorWrite.dstArrayElement = 0;
-
-		//descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		//descriptorWrite.descriptorCount = 1;
-
-		//descriptorWrite.pBufferInfo = &bufferInfo;
-		//descriptorWrite.pImageInfo = nullptr; // Optional
-		//descriptorWrite.pTexelBufferView = nullptr; // Optional
-
-		//vkUpdateDescriptorSets(device, 1, &descriptorWrite, 0, nullptr);
 	}
 }
 
 void Descriptor::createDescriptorPool(const VkDevice& device, VkDescriptorPool& descriptorPool)
 {
-	std::array<VkDescriptorPoolSize, 2> poolSizes{};
+	std::array<VkDescriptorPoolSize, 3> poolSizes{};// change hier voor amount of descriptors dus de eerste buffer + hoeveel textures.
 	poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	poolSizes[0].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
 	poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	poolSizes[1].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+	poolSizes[2].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	poolSizes[2].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
 
 	VkDescriptorPoolCreateInfo poolInfo{};
 	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;

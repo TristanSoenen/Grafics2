@@ -38,7 +38,7 @@
 const std::string MODEL_PATH = "resources/vehicle.obj";
 const std::string DIFFUSE = "resources/vehicle_diffuse.png";
 const std::string NORMAL_MAP = "resources/vehicle_normal.png";
-const int MAX_FRAMES_IN_FLIGHT = 2;
+const int MAX_FRAMES_IN_FLIGHT = 3; //This is important for the amount of descriptors you want to have the buffer + amount of textures
 
 const std::vector<const char*> validationLayers = {
 	"VK_LAYER_KHRONOS_validation"
@@ -96,8 +96,8 @@ private:
 	VkSampler textureSampler;
 
 	VkImage textureNormal;
-	VkDeviceMemory textureNormal;
-	VkImageView textureImageNormal;
+	VkDeviceMemory textureNormalMemory;
+	VkImageView textureNormalView;
 	VkSampler textureSamplerNormal;
 
 	glm::vec2 dragstart{};
@@ -134,16 +134,25 @@ private:
 		createFrameBuffers();
 
 		LoadModel();
-		createTextureImage(DIFFUSE);
-		createTextureImageView();
-		createTextureSampler();
+
+		//CREATE DIFFUSE
+		createTextureImage(DIFFUSE, textureImage, textureImageMemory);
+		createTextureImageView(textureImageView, textureImage);
+		createTextureSampler(textureSampler);
+
+		//CREATE NORMAL
+		createTextureImage(NORMAL_MAP, textureNormal, textureNormalMemory);
+		createTextureImageView(textureNormalView, textureNormal);
+		createTextureSampler(textureSamplerNormal);
+
+
 		m_Bufferclass.createVertexBuffer(device, vertices, vertexBuffer, vertexBufferMemory);
 		m_Bufferclass.createIndexBuffer(device, indices, indexBuffer, indexBufferMemory);
 
 		createUniformBuffers();
 		//m_UniBufferClass.createUniformBuffers(device, uniformBuffers, uniformBuffersMemory, uniformBuffersMapped);
 		m_Descriptorclass.createDescriptorPool(device, descriptorPool);
-		m_Descriptorclass.createDescriptorSets(device, uniformBuffers, descriptorPool, descriptorSets, descriptorSetLayout,textureImageView, textureSampler);
+		m_Descriptorclass.createDescriptorSets(device, uniformBuffers, descriptorPool, descriptorSets, descriptorSetLayout,textureImageView, textureSampler, textureNormalView, textureSamplerNormal);
 		createCommandBuffer();
 
 		// week 06
@@ -180,10 +189,17 @@ private:
 		vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
 
 		vkDestroySampler(device, textureSampler, nullptr);
+		vkDestroySampler(device, textureSamplerNormal, nullptr);
+		vkDestroyImageView(device, textureNormalView, nullptr);
 		vkDestroyImageView(device, textureImageView, nullptr);
-
+		vkDestroyImage(device, textureNormal, nullptr);
 		vkDestroyImage(device, textureImage, nullptr);
+		vkFreeMemory(device, textureNormalMemory, nullptr);
 		vkFreeMemory(device, textureImageMemory, nullptr);
+
+
+
+
 
 		vkDestroyBuffer(device, indexBuffer, nullptr);
 		vkFreeMemory(device, indexBufferMemory, nullptr);
@@ -275,7 +291,7 @@ private:
 	}
 
 	// Texture
-	void createTextureSampler() 
+	void createTextureSampler(VkSampler& texturesampler)
 	{
 		VkPhysicalDeviceProperties properties{};
 		vkGetPhysicalDeviceProperties(physicalDevice, &properties);
@@ -298,14 +314,14 @@ private:
 		samplerInfo.minLod = 0.0f;
 		samplerInfo.maxLod = 0.0f;
 
-		if (vkCreateSampler(device, &samplerInfo, nullptr, &textureSampler) != VK_SUCCESS) {
+		if (vkCreateSampler(device, &samplerInfo, nullptr, &texturesampler) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create texture sampler!");
 		}
 	}
 
-	void createTextureImageView() 
+	void createTextureImageView(VkImageView& textureimageview , VkImage& textureimage)
 	{
-		textureImageView = createImageView(textureImage, VK_FORMAT_R8G8B8A8_SRGB);
+		textureimageview = createImageView(textureimage, VK_FORMAT_R8G8B8A8_SRGB);
 	}
 
 	VkImageView createImageView(VkImage image, VkFormat format) {
@@ -328,7 +344,7 @@ private:
 		return imageView;
 	}
 
-	void createTextureImage(const std::string texture)
+	void createTextureImage(const std::string texture, VkImage& textureimage, VkDeviceMemory& textureimagememory)
 	{
 		int texWidth, texHeight, texChannels;
 		stbi_uc* pixels = stbi_load(texture.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
@@ -349,11 +365,11 @@ private:
 
 		stbi_image_free(pixels);
 
-		createImage(texWidth, texHeight, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureImage, textureImageMemory);
+		createImage(texWidth, texHeight, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureimage, textureimagememory);
 
-		transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-		copyBufferToImage(stagingBuffer, textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
-		transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		transitionImageLayout(textureimage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+		copyBufferToImage(stagingBuffer, textureimage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
+		transitionImageLayout(textureimage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
 		vkDestroyBuffer(device, stagingBuffer, nullptr);
 		vkFreeMemory(device, stagingBufferMemory, nullptr);
