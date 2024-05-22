@@ -36,6 +36,8 @@
 
 
 const std::string MODEL_PATH = "resources/vehicle.obj";
+const std::string DIFFUSE = "resources/vehicle_diffuse.png";
+const std::string NORMAL_MAP = "resources/vehicle_normal.png";
 const int MAX_FRAMES_IN_FLIGHT = 2;
 
 const std::vector<const char*> validationLayers = {
@@ -60,6 +62,9 @@ public:
 private:
 
 	VkSampleCountFlagBits msaaSamples = VK_SAMPLE_COUNT_1_BIT;
+	
+	
+	
 	std::vector<Vertex> vertices;
 	std::vector<uint32_t> indices;
 
@@ -131,6 +136,9 @@ private:
 	VkImageView textureImageView;
 	VkSampler textureSampler;
 
+	glm::vec2 dragstart{};
+	glm::vec2 rotation{};
+
 	dae::Camera camera{ window, glm::vec3{0.0f, 0.0f, 0.0f}, 90.0f};
 	float lastFrameTime = 0.0f;
 	void initVulkan() 
@@ -162,12 +170,11 @@ private:
 		createFrameBuffers();
 
 		LoadModel();
-		createTextureImage();
+		createTextureImage(DIFFUSE);
 		createTextureImageView();
 		createTextureSampler();
 		m_Bufferclass.createVertexBuffer(device, vertices, vertexBuffer, vertexBufferMemory);
 		m_Bufferclass.createIndexBuffer(device, indices, indexBuffer, indexBufferMemory);
-		
 
 		createUniformBuffers();
 		//m_UniBufferClass.createUniformBuffers(device, uniformBuffers, uniformBuffersMemory, uniformBuffersMapped);
@@ -254,8 +261,56 @@ private:
 		glfwTerminate();
 	}
 
-	// Texture
+	//CameraMouseMOVe
+	void VulkanBase::mouseMove(GLFWwindow* window, double xpos, double ypos)
+	{
+		int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT);
+		if (state == GLFW_PRESS)
+		{
+			float dx = static_cast<float>(xpos) - dragstart.x;
+			if (dx > 0)
+			{
+				camera.UpdateYawPlus();
+			}
+			else
+			{
+				camera.UpdateYawMin();
+			}
+		}
 
+		int otherstate = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
+		if (otherstate == GLFW_PRESS)
+		{
+			float dx = static_cast<float>(ypos) - dragstart.y;
+			if (dx > 0)
+			{
+				camera.UpdatePitchPlus();
+			}
+			else
+			{
+				camera.UpdatePitchMin();
+			}
+		}
+	}
+
+	void VulkanBase::mouseEvent(GLFWwindow* window, int button, int action, int mods)
+	{
+		double xpos, ypos;
+		if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
+		{
+			glfwGetCursorPos(window, &xpos, &ypos);
+			dragstart.x = static_cast<float>(xpos);
+			//dragstart.y = static_cast<float>(ypos);
+		}
+		if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+		{
+			glfwGetCursorPos(window, &xpos, &ypos);
+			//dragstart.x = static_cast<float>(xpos);
+			dragstart.y = static_cast<float>(ypos);
+		}
+	}
+
+	// Texture
 	void createTextureSampler() 
 	{
 		VkPhysicalDeviceProperties properties{};
@@ -309,10 +364,10 @@ private:
 		return imageView;
 	}
 
-	void createTextureImage()
+	void createTextureImage(const std::string texture)
 	{
 		int texWidth, texHeight, texChannels;
-		stbi_uc* pixels = stbi_load("resources/vehicle_diffuse.png", &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+		stbi_uc* pixels = stbi_load(texture.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
 		VkDeviceSize imageSize = texWidth * texHeight * 4;
 
 		if (!pixels) {
@@ -520,11 +575,13 @@ private:
 
 				vertex.color = { 1.0f, 1.0f, 1.0f };
 
-				//if (uniqueVertices.count(vertex) == 0) 
-				//{
-				//	uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
-				//	vertices.push_back(vertex);
-				//}
+				glfwSetWindowUserPointer(window, this);
+
+				/*if (uniqueVertices.count(vertex) == 0) 
+				{
+					uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
+					vertices.push_back(vertex);
+				}*/
 
 
 				vertices.push_back(vertex);
@@ -635,7 +692,7 @@ private:
 		float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
 		UniformBufferObject ubo{};
-		ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.f));
+		ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.f));
 		ubo.view = camera.GetViewMatrix();
 		ubo.proj = camera.GetProjectionMatrix();//glm::perspective(glm::radians(45.0f), swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 20.0f);
 		ubo.proj[1][1] *= -1;

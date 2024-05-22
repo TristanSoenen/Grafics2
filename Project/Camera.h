@@ -12,8 +12,8 @@ namespace dae
 			origin{ _origin },
 			fovAngle{ _fovAngle }
 		{
-			glfwSetWindowUserPointer(window, this);
-		}GLFWwindow* window;
+
+		}
 		glm::vec3 origin{};
 		float fovAngle{ 90.f };
 		float fov{ tanf(glm::radians(fovAngle) / 2.f) };
@@ -78,40 +78,37 @@ namespace dae
 				origin -= deltaTime * cameraSpeed * right;
 			if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 				origin += deltaTime * cameraSpeed * right;
-
-
-			if (GLFW_MOUSE_BUTTON_LEFT == GLFW_PRESS)
-			{
-				std::cout << "left button";
-				//totalYaw -= ;
-			}
-		//	//Mouse Input
-		//	int mouseX{}, mouseY{};
-		//	const uint32_t mouseState = SDL_GetRelativeMouseState(&mouseX, &mouseY);
-
-		//	//left mouse and right mouse together
-		//	if (mouseState == 5)
-		//	{
-		//		origin -= mouseY * pTimer->GetElapsed() * up * cameraSpeedMouse;
-		//	}
-
-		//	//left mouse
-		//	if (mouseState == 1)
-		//	{
-		//		totalYaw -= mouseX * pTimer->GetElapsed();
-		//		origin -= mouseY * pTimer->GetElapsed() * forward * cameraSpeedMouse;
-		//	}
-
-		//	//right mouse
-		//	if (mouseState == 4)
-		//	{
-		//		totalYaw -= mouseX * pTimer->GetElapsed();
-		//		totalPitch -= mouseY * pTimer->GetElapsed();
-		//	}
-
 			//Update Matrices
 			CalculateViewMatrix();
 			CalculateProjectionMatrix(); //Try to optimize this - should only be called once or when fov/aspectRatio changes
+		}
+
+		void UpdateYawPlus()
+		{
+			++totalYaw;
+			CalculateViewMatrix();
+			CalculateProjectionMatrix();
+		}
+
+		void UpdateYawMin()
+		{
+			--totalYaw;
+			CalculateViewMatrix();
+			CalculateProjectionMatrix();
+		}
+
+		void UpdatePitchPlus()
+		{
+			++totalPitch;
+			CalculateViewMatrix();
+			CalculateProjectionMatrix();
+		}
+
+		void UpdatePitchMin()
+		{
+			--totalPitch;
+			CalculateViewMatrix();
+			CalculateProjectionMatrix();
 		}
 	};
 }
