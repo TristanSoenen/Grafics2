@@ -1,7 +1,8 @@
 #include "vulkanbase/VulkanBase.h"
 #include "Structs.h"
 
-SwapChainSupportDetails VulkanBase::querySwapChainSupport(VkPhysicalDevice device) {
+SwapChainSupportDetails VulkanBase::querySwapChainSupport(VkPhysicalDevice device) 
+{
 	SwapChainSupportDetails details;
 
 	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &details.capabilities);
@@ -25,7 +26,8 @@ SwapChainSupportDetails VulkanBase::querySwapChainSupport(VkPhysicalDevice devic
 	return details;
 }
 
-VkSurfaceFormatKHR VulkanBase::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) {
+VkSurfaceFormatKHR VulkanBase::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) 
+{
 	for (const auto& availableFormat : availableFormats) {
 		if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
 			return availableFormat;
@@ -35,7 +37,8 @@ VkSurfaceFormatKHR VulkanBase::chooseSwapSurfaceFormat(const std::vector<VkSurfa
 	return availableFormats[0];
 }
 
-VkPresentModeKHR VulkanBase::chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes) {
+VkPresentModeKHR VulkanBase::chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes) 
+{
 	for (const auto& availablePresentMode : availablePresentModes) {
 		if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
 			return availablePresentMode;
@@ -45,8 +48,10 @@ VkPresentModeKHR VulkanBase::chooseSwapPresentMode(const std::vector<VkPresentMo
 	return VK_PRESENT_MODE_FIFO_KHR;
 }
 
-VkExtent2D VulkanBase::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) {
-	if (capabilities.currentExtent.width != (std::numeric_limits<uint32_t>::max)()) {
+VkExtent2D VulkanBase::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities) 
+{
+	if (capabilities.currentExtent.width != (std::numeric_limits<uint32_t>::max)()) 
+	{
 		return capabilities.currentExtent;
 	}
 	else {
@@ -65,7 +70,8 @@ VkExtent2D VulkanBase::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabili
 	}
 }
 
-void VulkanBase::createSwapChain() {
+void VulkanBase::createSwapChain() 
+{
 	SwapChainSupportDetails swapChainSupport = querySwapChainSupport(physicalDevice);
 
 	VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
@@ -119,29 +125,8 @@ void VulkanBase::createSwapChain() {
 	swapChainExtent = extent;
 }
 
-void VulkanBase::createImageViews() {
-	//swapChainImageViews.resize(swapChainImages.size());
-
-	//for (size_t i = 0; i < swapChainImages.size(); i++) {
-	//	VkImageViewCreateInfo createInfo{};
-	//	createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-	//	createInfo.image = swapChainImages[i];
-	//	createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-	//	createInfo.format = swapChainImageFormat;
-	//	createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-	//	createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-	//	createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-	//	createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-	//	createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-	//	createInfo.subresourceRange.baseMipLevel = 0;
-	//	createInfo.subresourceRange.levelCount = 1;
-	//	createInfo.subresourceRange.baseArrayLayer = 0;
-	//	createInfo.subresourceRange.layerCount = 1;
-
-	//	if (vkCreateImageView(device, &createInfo, nullptr, &swapChainImageViews[i]) != VK_SUCCESS) {
-	//		throw std::runtime_error("failed to create image views!");
-	//	}
-	//}
+void VulkanBase::createImageViews() 
+{
 	swapChainImageViews.resize(swapChainImages.size());
 
 	for (uint32_t i = 0; i < swapChainImages.size(); i++) {

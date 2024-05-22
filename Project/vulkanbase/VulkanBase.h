@@ -63,49 +63,8 @@ private:
 
 	VkSampleCountFlagBits msaaSamples = VK_SAMPLE_COUNT_1_BIT;
 	
-	
-	
 	std::vector<Vertex> vertices;
 	std::vector<uint32_t> indices;
-
-	//////Cube
-	//std::vector<Vertex> vertices = 
-	//{
-	//	{{-1, 1, -4.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},   // Vertex 0
-	//	{{1, 1, -4.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},    // Vertex 1
-	//	{{1, -1, -4.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},   // Vertex 2
-	//	{{-1, -1, -4.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},  // Vertex 3
-
-	//	 //Z plane
-	//	{{-1.0f, 1.0f, -5.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},   // Vertex 4
-	//	{{1.0f, 1.0f, -5.0f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},    // Vertex 5
-	//	{{1.0f, -1.0f, -5.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},   // Vertex 6
-	//	{{-1.0f, -1.0f, -5.0f}, {1.0f, 1.0f, 1.0f}, {0.0f, 1.0f}},   // Vertex 7
-	//};
-
-	//std::vector<uint32_t> indices = 
-	//{
-	//	//XY plane
-	//	0, 1, 2, // First triangle
-	//	2, 3, 0, // Second triangle
-
-	//	//Z plane
-	//	4, 5, 6, // First triangle
-	//	6, 7, 4, // Second triangle
-
-	//	//Connecting vertices between planes
-	//	0, 1, 5, // First triangle
-	//	5, 4, 0, // Second triangle
-
-	//	1, 2, 6, // First triangle
-	//	6, 5, 1, // Second triangle
-
-	//	2, 3, 7, // First triangle
-	//	7, 6, 2, // Second triangle
-
-	//	3, 0, 4, // First triangle
-	//	4, 7, 3,  // Second triangle
-	//};
 
 	VkBuffer vertexBuffer;
 	VkDeviceMemory vertexBufferMemory;
@@ -135,6 +94,11 @@ private:
 	VkDeviceMemory textureImageMemory;
 	VkImageView textureImageView;
 	VkSampler textureSampler;
+
+	VkImage textureNormal;
+	VkDeviceMemory textureNormal;
+	VkImageView textureImageNormal;
+	VkSampler textureSamplerNormal;
 
 	glm::vec2 dragstart{};
 	glm::vec2 rotation{};
@@ -395,7 +359,8 @@ private:
 		vkFreeMemory(device, stagingBufferMemory, nullptr);
 	}
 
-	void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory) {
+	void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory)
+	{
 		VkImageCreateInfo imageInfo{};
 		imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 		imageInfo.imageType = VK_IMAGE_TYPE_2D;
@@ -715,7 +680,8 @@ private:
 		}
 	}
 
-	void createSurface() {
+	void createSurface() 
+	{
 		if (glfwCreateWindowSurface(instance, window, nullptr, &surface) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create window surface!");
 		}

@@ -7,6 +7,7 @@ layout(location = 0) out vec4 outColor;
 
 layout(binding = 1) uniform sampler2D Diffuse;
 
-void main() {
+void main() 
+{
     outColor = texture(Diffuse, fragTexCoord);
 }

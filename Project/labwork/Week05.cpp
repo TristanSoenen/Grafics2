@@ -1,7 +1,8 @@
 #include "vulkanbase/VulkanBase.h"
 #include "Structs.h"
 
-void VulkanBase::pickPhysicalDevice() {
+void VulkanBase::pickPhysicalDevice() 
+{
 	uint32_t deviceCount = 0;
 	vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
 
@@ -37,7 +38,8 @@ void VulkanBase::pickPhysicalDevice() {
 	}
 }
 
-bool VulkanBase::isDeviceSuitable(VkPhysicalDevice device) {
+bool VulkanBase::isDeviceSuitable(VkPhysicalDevice device) 
+{
 	QueueFamilyIndices indices = findQueueFamilies(device);
 	VkPhysicalDeviceFeatures supportedFeatures;
 	vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
@@ -46,7 +48,8 @@ bool VulkanBase::isDeviceSuitable(VkPhysicalDevice device) {
 
 }
 
-void VulkanBase::createLogicalDevice() {
+void VulkanBase::createLogicalDevice() 
+{
 	QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
 
 	std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
@@ -81,11 +84,13 @@ void VulkanBase::createLogicalDevice() {
 	createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
 	createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
-	if (enableValidationLayers) {
+	if (enableValidationLayers) 
+	{
 		createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
 		createInfo.ppEnabledLayerNames = validationLayers.data();
 	}
-	else {
+	else 
+	{
 		createInfo.enabledLayerCount = 0;
 	}
 
