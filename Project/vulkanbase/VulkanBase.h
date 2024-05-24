@@ -35,8 +35,6 @@
 #include <unordered_map>
 #include "Camera.h"
 
-
-
 const std::string MODEL_PATH = "resources/vehicle.obj";
 const std::string DIFFUSE = "resources/vehicle_diffuse.png";
 const std::string NORMAL_MAP = "resources/vehicle_normal.png";

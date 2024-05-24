@@ -51,7 +51,8 @@ set(SOURCES
     "Descriptor.cpp" 
     "UniformBufferClass.h" 
     "UniformBufferClass.cpp"
- "Texture.h" "Texture.cpp")
+    "Texture.h"
+    "Texture.cpp")
 
 # Copy resources directory to build directory
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
