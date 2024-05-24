@@ -4,6 +4,7 @@
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZER
 
+#include <vector>
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
 #include "VulkanUtil.h"
@@ -12,7 +13,7 @@
 #include "stb_image.h"
 #include <iostream>
 #include <stdexcept>
-#include <vector>
+
 #include <cstring>
 #include <cstdlib>
 #include <cstdint>
@@ -24,6 +25,7 @@
 #include "Buffer.h"
 #include "Descriptor.h"
 #include "UniformBufferClass.h"
+#include "Texture.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -63,6 +65,7 @@ private:
 
 	VkSampleCountFlagBits msaaSamples = VK_SAMPLE_COUNT_1_BIT;
 	
+	std::vector<Mesh> meshes;
 	std::vector<Vertex> vertices;
 	std::vector<uint32_t> indices;
 
@@ -90,15 +93,10 @@ private:
 	VkDeviceMemory colorImageMemory;
 	VkImageView colorImageView;
 
-	VkImage textureImage;
-	VkDeviceMemory textureImageMemory;
-	VkImageView textureImageView;
-	VkSampler textureSampler;
-
-	VkImage textureNormal;
-	VkDeviceMemory textureNormalMemory;
-	VkImageView textureNormalView;
-	VkSampler textureSamplerNormal;
+	std::vector<VkImage> VkImageVector;
+	std::vector<VkDeviceMemory> VkTextureMemoryVector;
+	std::vector<VkImageView> VkImageViewVector;
+	std::vector<VkSampler> VkSamplerVector;
 
 	glm::vec2 dragstart{};
 	glm::vec2 rotation{};
@@ -134,16 +132,20 @@ private:
 		createFrameBuffers();
 
 		LoadModel();
+		VkImageVector.resize(4);
+		VkTextureMemoryVector.resize(4);
+		VkImageViewVector.resize(4);
+		VkSamplerVector.resize(4);
 
 		//CREATE DIFFUSE
-		createTextureImage(DIFFUSE, textureImage, textureImageMemory);
-		createTextureImageView(textureImageView, textureImage);
-		createTextureSampler(textureSampler);
+		createTextureImage(DIFFUSE, VkImageVector[0], VkTextureMemoryVector[0]);
+		createTextureImageView(VkImageViewVector[0], VkImageVector[0]);
+		createTextureSampler(VkSamplerVector[0]);
 
 		//CREATE NORMAL
-		createTextureImage(NORMAL_MAP, textureNormal, textureNormalMemory);
-		createTextureImageView(textureNormalView, textureNormal);
-		createTextureSampler(textureSamplerNormal);
+		createTextureImage(NORMAL_MAP, VkImageVector[1], VkTextureMemoryVector[1]);
+		createTextureImageView(VkImageViewVector[1], VkImageVector[1]);
+		createTextureSampler(VkSamplerVector[1]);
 
 
 		m_Bufferclass.createVertexBuffer(device, vertices, vertexBuffer, vertexBufferMemory);
@@ -152,7 +154,7 @@ private:
 		createUniformBuffers();
 		//m_UniBufferClass.createUniformBuffers(device, uniformBuffers, uniformBuffersMemory, uniformBuffersMapped);
 		m_Descriptorclass.createDescriptorPool(device, descriptorPool);
-		m_Descriptorclass.createDescriptorSets(device, uniformBuffers, descriptorPool, descriptorSets, descriptorSetLayout,textureImageView, textureSampler, textureNormalView, textureSamplerNormal);
+		m_Descriptorclass.createDescriptorSets(device, uniformBuffers, descriptorPool, descriptorSets, descriptorSetLayout,VkImageViewVector[0], VkSamplerVector[0], VkImageViewVector[1], VkSamplerVector[1]);
 		createCommandBuffer();
 
 		// week 06
@@ -188,18 +190,25 @@ private:
 		vkDestroyDescriptorPool(device, descriptorPool, nullptr);
 		vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
 
-		vkDestroySampler(device, textureSampler, nullptr);
-		vkDestroySampler(device, textureSamplerNormal, nullptr);
-		vkDestroyImageView(device, textureNormalView, nullptr);
-		vkDestroyImageView(device, textureImageView, nullptr);
-		vkDestroyImage(device, textureNormal, nullptr);
-		vkDestroyImage(device, textureImage, nullptr);
-		vkFreeMemory(device, textureNormalMemory, nullptr);
-		vkFreeMemory(device, textureImageMemory, nullptr);
+		for (int i = 0; i < VkSamplerVector.size(); i++)
+		{
+			vkDestroySampler(device, VkSamplerVector[i], nullptr);
+		}
 
+		for (int i = 0; i < VkImageViewVector.size(); i++)
+		{
+			vkDestroyImageView(device, VkImageViewVector[i], nullptr);
+		}
 
+		for (int i = 0; i < VkImageVector.size(); i++)
+		{
+			vkDestroyImage(device, VkImageVector[i], nullptr);
+		}
 
-
+		for (int i = 0; i < VkTextureMemoryVector.size(); i++)
+		{
+			vkFreeMemory(device, VkTextureMemoryVector[i], nullptr);
+		}
 
 		vkDestroyBuffer(device, indexBuffer, nullptr);
 		vkFreeMemory(device, indexBufferMemory, nullptr);
@@ -427,8 +436,6 @@ private:
 		barrier.subresourceRange.levelCount = 1;
 		barrier.subresourceRange.baseArrayLayer = 0;
 		barrier.subresourceRange.layerCount = 1;
-		//barrier.srcAccessMask = 0; // TODO
-		//barrier.dstAccessMask = 0; // TODO
 
 		VkPipelineStageFlags sourceStage;
 		VkPipelineStageFlags destinationStage;
@@ -715,6 +722,8 @@ private:
 	Buffer m_Bufferclass;
 	Descriptor m_Descriptorclass;
 	UniformBufferClass m_UniBufferClass;
+
+
 
 	void initWindow();
 	void drawScene();
