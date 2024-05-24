@@ -40,7 +40,9 @@
 const std::string MODEL_PATH = "resources/vehicle.obj";
 const std::string DIFFUSE = "resources/vehicle_diffuse.png";
 const std::string NORMAL_MAP = "resources/vehicle_normal.png";
-const int MAX_FRAMES_IN_FLIGHT = 3; //This is important for the amount of descriptors you want to have the buffer + amount of textures
+const std::string GLOSS_MAP = "resources/vehicle_gloss.png";
+const std::string SPECULAR_MAP = "resources/vehicle_specular.png";
+const int MAX_FRAMES_IN_FLIGHT = 5; //This is important for the amount of descriptors you want to have the buffer + amount of textures
 
 const std::vector<const char*> validationLayers = {
 	"VK_LAYER_KHRONOS_validation"
@@ -147,6 +149,13 @@ private:
 		createTextureImageView(VkImageViewVector[1], VkImageVector[1]);
 		createTextureSampler(VkSamplerVector[1]);
 
+		createTextureImage(GLOSS_MAP, VkImageVector[2], VkTextureMemoryVector[2]);
+		createTextureImageView(VkImageViewVector[2], VkImageVector[2]);
+		createTextureSampler(VkSamplerVector[2]);
+
+		createTextureImage(SPECULAR_MAP, VkImageVector[3], VkTextureMemoryVector[3]);
+		createTextureImageView(VkImageViewVector[3], VkImageVector[3]);
+		createTextureSampler(VkSamplerVector[3]);
 
 		m_Bufferclass.createVertexBuffer(device, vertices, vertexBuffer, vertexBufferMemory);
 		m_Bufferclass.createIndexBuffer(device, indices, indexBuffer, indexBufferMemory);
@@ -154,7 +163,7 @@ private:
 		createUniformBuffers();
 		//m_UniBufferClass.createUniformBuffers(device, uniformBuffers, uniformBuffersMemory, uniformBuffersMapped);
 		m_Descriptorclass.createDescriptorPool(device, descriptorPool);
-		m_Descriptorclass.createDescriptorSets(device, uniformBuffers, descriptorPool, descriptorSets, descriptorSetLayout,VkImageViewVector[0], VkSamplerVector[0], VkImageViewVector[1], VkSamplerVector[1]);
+		m_Descriptorclass.createDescriptorSets(device, uniformBuffers, descriptorPool, descriptorSets, descriptorSetLayout, VkImageViewVector, VkSamplerVector);
 		createCommandBuffer();
 
 		// week 06
