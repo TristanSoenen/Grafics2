@@ -2,7 +2,6 @@
 
 void VulkanBase::createFrameBuffers() 
 {
-
 	swapChainFramebuffers.resize(swapChainImageViews.size());
 
 	for (size_t i = 0; i < swapChainImageViews.size(); i++) {
