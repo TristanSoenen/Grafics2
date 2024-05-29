@@ -103,9 +103,8 @@ private:
 
 	dae::Camera camera{ window, glm::vec3{0.0f, 0.0f, 0.0f}, 90.0f};
 	float lastFrameTime = 0.0f;
-	void initVulkan() 
+	void initVulkan()
 	{
-
 		// week 06
 		createInstance();
 		setupDebugMessenger();
@@ -131,37 +130,41 @@ private:
 		createDepthResources();
 		createFrameBuffers();
 
-		LoadModel();
-		VkImageVector.resize(4);
-		VkTextureMemoryVector.resize(4);
-		VkImageViewVector.resize(4);
-		VkSamplerVector.resize(4);
+		//for (auto& mesh : meshes)
+		//{
+			//start splitting for meshes.
+			LoadModel();
+			VkImageVector.resize(4);
+			VkTextureMemoryVector.resize(4);
+			VkImageViewVector.resize(4);
+			VkSamplerVector.resize(4);
 
-		//CREATE DIFFUSE
-		createTextureImage(DIFFUSE, VkImageVector[0], VkTextureMemoryVector[0]);
-		createTextureImageView(VkImageViewVector[0], VkImageVector[0]);
-		createTextureSampler(VkSamplerVector[0]);
+			//CREATE DIFFUSE
+			createTextureImage(DIFFUSE, VkImageVector[0], VkTextureMemoryVector[0]);
+			createTextureImageView(VkImageViewVector[0], VkImageVector[0]);
+			createTextureSampler(VkSamplerVector[0]);
 
-		//CREATE NORMAL
-		createTextureImage(NORMAL_MAP, VkImageVector[1], VkTextureMemoryVector[1]);
-		createTextureImageView(VkImageViewVector[1], VkImageVector[1]);
-		createTextureSampler(VkSamplerVector[1]);
+			//CREATE NORMAL
+			createTextureImage(NORMAL_MAP, VkImageVector[1], VkTextureMemoryVector[1]);
+			createTextureImageView(VkImageViewVector[1], VkImageVector[1]);
+			createTextureSampler(VkSamplerVector[1]);
 
-		createTextureImage(GLOSS_MAP, VkImageVector[2], VkTextureMemoryVector[2]);
-		createTextureImageView(VkImageViewVector[2], VkImageVector[2]);
-		createTextureSampler(VkSamplerVector[2]);
+			createTextureImage(GLOSS_MAP, VkImageVector[2], VkTextureMemoryVector[2]);
+			createTextureImageView(VkImageViewVector[2], VkImageVector[2]);
+			createTextureSampler(VkSamplerVector[2]);
 
-		createTextureImage(SPECULAR_MAP, VkImageVector[3], VkTextureMemoryVector[3]);
-		createTextureImageView(VkImageViewVector[3], VkImageVector[3]);
-		createTextureSampler(VkSamplerVector[3]);
+			createTextureImage(SPECULAR_MAP, VkImageVector[3], VkTextureMemoryVector[3]);
+			createTextureImageView(VkImageViewVector[3], VkImageVector[3]);
+			createTextureSampler(VkSamplerVector[3]);
 
-		m_Bufferclass.createVertexBuffer(device, vertices, vertexBuffer, vertexBufferMemory);
-		m_Bufferclass.createIndexBuffer(device, indices, indexBuffer, indexBufferMemory);
+			m_Bufferclass.createVertexBuffer(device, vertices, vertexBuffer, vertexBufferMemory);
+			m_Bufferclass.createIndexBuffer(device, indices, indexBuffer, indexBufferMemory);
 
-		createUniformBuffers();
-		//m_UniBufferClass.createUniformBuffers(device, uniformBuffers, uniformBuffersMemory, uniformBuffersMapped);
-		m_Descriptorclass.createDescriptorPool(device, descriptorPool);
-		m_Descriptorclass.createDescriptorSets(device, uniformBuffers, descriptorPool, descriptorSets, descriptorSetLayout, VkImageViewVector, VkSamplerVector);
+			createUniformBuffers();
+			//m_UniBufferClass.createUniformBuffers(device, uniformBuffers, uniformBuffersMemory, uniformBuffersMapped);
+			m_Descriptorclass.createDescriptorPool(device, descriptorPool);
+			m_Descriptorclass.createDescriptorSets(device, uniformBuffers, descriptorPool, descriptorSets, descriptorSetLayout, VkImageViewVector, VkSamplerVector);
+		//}
 		createCommandBuffer();
 
 		// week 06
@@ -391,42 +394,6 @@ private:
 		vkFreeMemory(device, stagingBufferMemory, nullptr);
 	}
 
-	//void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image, VkDeviceMemory& imageMemory)
-	//{
-	//	VkImageCreateInfo imageInfo{};
-	//	imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-	//	imageInfo.imageType = VK_IMAGE_TYPE_2D;
-	//	imageInfo.extent.width = width;
-	//	imageInfo.extent.height = height;
-	//	imageInfo.extent.depth = 1;
-	//	imageInfo.mipLevels = 1;
-	//	imageInfo.arrayLayers = 1;
-	//	imageInfo.format = format;
-	//	imageInfo.tiling = tiling;
-	//	imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	//	imageInfo.usage = usage;
-	//	imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-	//	imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
-	//	if (vkCreateImage(device, &imageInfo, nullptr, &image) != VK_SUCCESS) {
-	//		throw std::runtime_error("failed to create image!");
-	//	}
-
-	//	VkMemoryRequirements memRequirements;
-	//	vkGetImageMemoryRequirements(device, image, &memRequirements);
-
-	//	VkMemoryAllocateInfo allocInfo{};
-	//	allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-	//	allocInfo.allocationSize = memRequirements.size;
-	//	allocInfo.memoryTypeIndex = m_Bufferclass.findMemoryType(memRequirements.memoryTypeBits, properties);
-
-	//	if (vkAllocateMemory(device, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS) {
-	//		throw std::runtime_error("failed to allocate image memory!");
-	//	}
-
-	//	vkBindImageMemory(device, image, imageMemory, 0);
-	//}
-
 	void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout)
 	{
 		VkCommandBuffer commandBuffer = m_Bufferclass.beginSingleTimeCommands(device);
@@ -549,6 +516,11 @@ private:
 			throw std::runtime_error(warn + err);
 		}
 
+
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(25, 0, 0)); // Translation
+		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0, 1.0f, 0)); // Rotation
+		//model = glm::scale(model, glm::vec3(scaleX, scaleY, scaleZ)); // Scaling
 		//std::unordered_map<Vertex, uint32_t> uniqueVertices{};
 
 		for (const auto& shape : shapes)
@@ -557,10 +529,16 @@ private:
 			{
 				Vertex vertex{};
 
-				vertex.pos = {
+				glm::vec4 pos = {
 				attrib.vertices[3 * index.vertex_index + 0],
 				attrib.vertices[3 * index.vertex_index + 1],
-				attrib.vertices[3 * index.vertex_index + 2]
+				attrib.vertices[3 * index.vertex_index + 2],
+				1.0f
+				};
+
+				pos = model * pos;
+				vertex.pos = {
+					pos.x, pos.y, pos.z
 				};
 
 				vertex.texCoord = {
