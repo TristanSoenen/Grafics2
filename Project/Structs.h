@@ -103,4 +103,5 @@ struct Mesh
 	std::vector<VkDeviceMemory> uniformBuffersMemory;
 
 	std::vector<VkDescriptorSet> descriptorSets;
+	VkDescriptorPool descriptorPool;
 };

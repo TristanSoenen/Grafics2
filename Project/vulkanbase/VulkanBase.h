@@ -67,7 +67,7 @@ private:
 	
 	std::vector<Mesh> meshes;
 	std::vector<std::string> mapStrings{ DIFFUSE, NORMAL_MAP, GLOSS_MAP, SPECULAR_MAP };
-	VkDescriptorPool descriptorPool;
+	//VkDescriptorPool descriptorPool;
 	VkDescriptorSetLayout descriptorSetLayout;
 	std::vector<void*> uniformBuffersMapped = {nullptr};
 
@@ -83,6 +83,8 @@ private:
 
 	glm::vec2 dragstart{};
 	glm::vec2 rotation{};
+
+	std::vector<glm::vec3> positions;
 
 	dae::Camera camera{ window, glm::vec3{0.0f, 0.0f, 0.0f}, 90.0f};
 	float lastFrameTime = 0.0f;
@@ -114,18 +116,21 @@ private:
 		createDepthResources();
 		createFrameBuffers();
 
-		meshes.resize(1);
+		meshes.resize(2);
+		positions.push_back(glm::vec3(50, 0, 10));
+		positions.push_back(glm::vec3(25, 0, 0));
+	
+		int positionIndex = 0;
 		for (auto& mesh : meshes)
 		{
 			//start splitting for meshes.
-			LoadModel(glm::vec3(25, 0, 0));
+			LoadModel(mesh, positions[positionIndex]);
 			mesh.VkImageVector.resize(4);
 			mesh.VkTextureMemoryVector.resize(4);
 			mesh.VkImageViewVector.resize(4);
 			mesh.VkSamplerVector.resize(4);
 
-			//CREATE DIFFUSE
-
+			//Create Textures
 			for (int i = 0; i < mapStrings.size(); i++)
 			{
 				createTextureImage(mapStrings[i], mesh.VkImageVector[i], mesh.VkTextureMemoryVector[i]);
@@ -136,9 +141,10 @@ private:
 			m_Bufferclass.createVertexBuffer(device, mesh.vertices, mesh.vertexBuffer, mesh.vertexBufferMemory);
 			m_Bufferclass.createIndexBuffer(device, mesh.indices, mesh.indexBuffer, mesh.indexBufferMemory);
 
-			createUniformBuffers();
-			m_Descriptorclass.createDescriptorPool(device, descriptorPool);
-			m_Descriptorclass.createDescriptorSets(device, mesh.uniformBuffers, descriptorPool, mesh.descriptorSets, descriptorSetLayout, mesh.VkImageViewVector, mesh.VkSamplerVector);
+			createUniformBuffers(mesh);
+			m_Descriptorclass.createDescriptorPool(device, mesh.descriptorPool);
+			m_Descriptorclass.createDescriptorSets(device, mesh.uniformBuffers, mesh.descriptorPool, mesh.descriptorSets, descriptorSetLayout, mesh.VkImageViewVector, mesh.VkSamplerVector);
+			positionIndex++;
 		}
 		createCommandBuffer();
 
@@ -163,43 +169,49 @@ private:
 
 	void cleanup() 
 	{
-		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-			vkDestroyBuffer(device, meshes[0].uniformBuffers[i], nullptr);
-			vkFreeMemory(device, meshes[0].uniformBuffersMemory[i], nullptr);
+		for (auto& mesh : meshes)
+		{
+			for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+				vkDestroyBuffer(device, mesh.uniformBuffers[i], nullptr);
+				vkFreeMemory(device, mesh.uniformBuffersMemory[i], nullptr);
+			}
 		}
 
 		vkDestroyImageView(device, colorImageView, nullptr);
 		vkDestroyImage(device, colorImage, nullptr);
 		vkFreeMemory(device, colorImageMemory, nullptr);
 
-		vkDestroyDescriptorPool(device, descriptorPool, nullptr);
+		for (auto& mesh : meshes)
+		{
+			vkDestroyDescriptorPool(device, mesh.descriptorPool, nullptr);
+		}
 		vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
 
-		for (int i = 0; i < meshes[0].VkSamplerVector.size(); i++)
+		for (auto& mesh : meshes)
 		{
-			vkDestroySampler(device, meshes[0].VkSamplerVector[i], nullptr);
+			for (int i = 0; i < mesh.VkSamplerVector.size(); i++)
+			{
+				vkDestroySampler(device, mesh.VkSamplerVector[i], nullptr);
+			}
+			for (int i = 0; i < mesh.VkImageViewVector.size(); i++)
+			{
+				vkDestroyImageView(device, mesh.VkImageViewVector[i], nullptr);
+			}
+
+			for (int i = 0; i < mesh.VkImageVector.size(); i++)
+			{
+				vkDestroyImage(device, mesh.VkImageVector[i], nullptr);
+			}
+			for (int i = 0; i < mesh.VkTextureMemoryVector.size(); i++)
+			{
+				vkFreeMemory(device, mesh.VkTextureMemoryVector[i], nullptr);
+			}
+			vkDestroyBuffer(device, mesh.indexBuffer, nullptr);
+			vkFreeMemory(device, mesh.indexBufferMemory, nullptr);
+			vkDestroyBuffer(device, mesh.vertexBuffer, nullptr);
+			vkFreeMemory(device, mesh.vertexBufferMemory, nullptr);
 		}
 
-		for (int i = 0; i < meshes[0].VkImageViewVector.size(); i++)
-		{
-			vkDestroyImageView(device, meshes[0].VkImageViewVector[i], nullptr);
-		}
-
-		for (int i = 0; i < meshes[0].VkImageVector.size(); i++)
-		{
-			vkDestroyImage(device, meshes[0].VkImageVector[i], nullptr);
-		}
-
-		for (int i = 0; i < meshes[0].VkTextureMemoryVector.size(); i++)
-		{
-			vkFreeMemory(device, meshes[0].VkTextureMemoryVector[i], nullptr);
-		}
-
-		vkDestroyBuffer(device, meshes[0].indexBuffer, nullptr);
-		vkFreeMemory(device, meshes[0].indexBufferMemory, nullptr);
-
-		vkDestroyBuffer(device, meshes[0].vertexBuffer, nullptr);
-		vkFreeMemory(device, meshes[0].vertexBufferMemory, nullptr);
 
 		vkDestroySemaphore(device, renderFinishedSemaphore, nullptr);
 		vkDestroySemaphore(device, imageAvailableSemaphore, nullptr);
@@ -479,7 +491,7 @@ private:
 	}
 
 	//loading Model
-	void LoadModel(glm::vec3 position)
+	void LoadModel(Mesh& mesh, glm::vec3 position)
 	{
 		tinyobj::attrib_t attrib;
 		std::vector<tinyobj::shape_t> shapes;
@@ -537,22 +549,22 @@ private:
 				}*/
 
 
-				meshes[0].vertices.push_back(vertex);
+				mesh.vertices.push_back(vertex);
 
-				meshes[0].indices.push_back(meshes[0].indices.size());
+				mesh.indices.push_back(mesh.indices.size());
 			}
 
-			for (uint32_t i = 0; i < meshes[0].indices.size(); i += 3)
+			for (uint32_t i = 0; i < mesh.indices.size(); i += 3)
 			{
-				uint32_t index0 = meshes[0].indices[i];
-				uint32_t index1 = meshes[0].indices[size_t(i) + 1];
-				uint32_t index2 = meshes[0].indices[size_t(i) + 2];
-				const glm::vec3& p0 = meshes[0].vertices[index0].pos;
-				const glm::vec3& p1 = meshes[0].vertices[index1].pos;
-				const glm::vec3& p2 = meshes[0].vertices[index2].pos;
-				const glm::vec2 uv0 = meshes[0].vertices[index0].texCoord;
-				const glm::vec2 uv1 = meshes[0].vertices[index1].texCoord;
-				const glm::vec2 uv2 = meshes[0].vertices[index2].texCoord;
+				uint32_t index0 = mesh.indices[i];
+				uint32_t index1 = mesh.indices[size_t(i) + 1];
+				uint32_t index2 = mesh.indices[size_t(i) + 2];
+				const glm::vec3& p0 = mesh.vertices[index0].pos;
+				const glm::vec3& p1 = mesh.vertices[index1].pos;
+				const glm::vec3& p2 = mesh.vertices[index2].pos;
+				const glm::vec2 uv0 = mesh.vertices[index0].texCoord;
+				const glm::vec2 uv1 = mesh.vertices[index1].texCoord;
+				const glm::vec2 uv2 = mesh.vertices[index2].texCoord;
 				const glm::vec3 edge0 = p1 - p0;
 				const glm::vec3 edge1 = p2 - p0;
 				const glm::vec2 diffX = glm::vec2(uv1.x - uv0.x, uv2.x - uv0.x);
@@ -560,12 +572,12 @@ private:
 				float r = 1.0f / (diffX.x * diffY.y - diffX.y - diffY.x);
 
 				glm::vec3 tangent = (edge0 * diffY.y - edge1 * diffX.x) * r;
-				meshes[0].vertices[index0].tangent += tangent;
-				meshes[0].vertices[index1].tangent += tangent;
-				meshes[0].vertices[index2].tangent += tangent;
+				mesh.vertices[index0].tangent += tangent;
+				mesh.vertices[index1].tangent += tangent;
+				mesh.vertices[index2].tangent += tangent;
 			}
 
-			for (auto& v : meshes[0].vertices)
+			for (auto& v : mesh.vertices)
 			{
 				glm::vec3 projection = (glm::dot(v.tangent, v.normal) / glm::dot(v.normal, v.normal)) * v.normal;
 				v.tangent = v.tangent - projection;
@@ -683,19 +695,19 @@ private:
 		memcpy(uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
 	}
 
-	void createUniformBuffers()
+	void createUniformBuffers(Mesh& mesh)
 	{
 		VkDeviceSize bufferSize = sizeof(UniformBufferObject);
 
-		meshes[0].uniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
-		meshes[0].uniformBuffersMemory.resize(MAX_FRAMES_IN_FLIGHT);
+		mesh.uniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+		mesh.uniformBuffersMemory.resize(MAX_FRAMES_IN_FLIGHT);
 		uniformBuffersMapped.resize(MAX_FRAMES_IN_FLIGHT);
 		
 
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-			m_Bufferclass.createBuffer(device, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, meshes[0].uniformBuffers[i], meshes[0].uniformBuffersMemory[i]);
+			m_Bufferclass.createBuffer(device, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, mesh.uniformBuffers[i], mesh.uniformBuffersMemory[i]);
 
-			vkMapMemory(device, meshes[0].uniformBuffersMemory[i], 0, bufferSize, 0, &uniformBuffersMapped[i]);
+			vkMapMemory(device, mesh.uniformBuffersMemory[i], 0, bufferSize, 0, &uniformBuffersMapped[i]);
 		}
 	}
 
@@ -722,7 +734,7 @@ private:
 
 
 	void initWindow();
-	void drawScene();
+	void drawScene(Mesh& mesh);
 
 	// Week 02
 	// Queue families

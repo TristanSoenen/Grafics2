@@ -34,7 +34,8 @@ void VulkanBase::createSyncObjects() {
 	}
 }
 
-void VulkanBase::drawFrame() {
+void VulkanBase::drawFrame() 
+{
 	vkWaitForFences(device, 1, &inFlightFence, VK_TRUE, UINT64_MAX);
 	vkResetFences(device, 1, &inFlightFence);
 
@@ -79,7 +80,8 @@ void VulkanBase::drawFrame() {
 	vkQueuePresentKHR(presentQueue, &presentInfo);
 }
 
-bool checkValidationLayerSupport() {
+bool checkValidationLayerSupport() 
+{
 	uint32_t layerCount;
 	vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
 
@@ -104,7 +106,8 @@ bool checkValidationLayerSupport() {
 	return true;
 }
 
-std::vector<const char*> VulkanBase::getRequiredExtensions() {
+std::vector<const char*> VulkanBase::getRequiredExtensions() 
+{
 	uint32_t glfwExtensionCount = 0;
 	const char** glfwExtensions;
 	glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
@@ -118,7 +121,8 @@ std::vector<const char*> VulkanBase::getRequiredExtensions() {
 	return extensions;
 }
 
-bool VulkanBase::checkDeviceExtensionSupport(VkPhysicalDevice device) {
+bool VulkanBase::checkDeviceExtensionSupport(VkPhysicalDevice device) 
+{
 	uint32_t extensionCount;
 	vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
 
@@ -134,7 +138,8 @@ bool VulkanBase::checkDeviceExtensionSupport(VkPhysicalDevice device) {
 	return requiredExtensions.empty();
 }
 
-void VulkanBase::createInstance() {
+void VulkanBase::createInstance() 
+{
 	if (enableValidationLayers && !checkValidationLayerSupport()) {
 		throw std::runtime_error("validation layers requested, but not available!");
 	}
