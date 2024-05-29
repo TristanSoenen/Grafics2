@@ -85,28 +85,28 @@ namespace dae
 
 		void UpdateYawPlus()
 		{
-			++totalYaw;
+			totalYaw += 0.1f;
 			CalculateViewMatrix();
 			CalculateProjectionMatrix();
 		}
 
 		void UpdateYawMin()
 		{
-			--totalYaw;
+			totalYaw -= 0.1f;
 			CalculateViewMatrix();
 			CalculateProjectionMatrix();
 		}
 
 		void UpdatePitchPlus()
 		{
-			++totalPitch;
+			totalPitch += 0.1f;
 			CalculateViewMatrix();
 			CalculateProjectionMatrix();
 		}
 
 		void UpdatePitchMin()
 		{
-			--totalPitch;
+			totalPitch -= 0.1f;
 			CalculateViewMatrix();
 			CalculateProjectionMatrix();
 		}

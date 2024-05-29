@@ -16,7 +16,15 @@ layout(binding = 4) uniform sampler2D Specular;
 
 void main() 
 {
-    outColor = texture(Diffuse, fragTexCoord);
+    //lights
+
+
+
+    vec3 diff = texture(Diffuse, fragTexCoord).rgb; 
+
+
+    vec3 color = diff;
+    outColor = vec4(diff, 1.0); //texture(Diffuse, fragTexCoord);
     //outNormal = texure(Normal)
 
 }
