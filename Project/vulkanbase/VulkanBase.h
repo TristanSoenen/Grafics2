@@ -36,6 +36,8 @@
 #include "Camera.h"
 
 const std::string MODEL_PATH = "resources/vehicle.obj";
+const std::string CUBE_PATH = "resources/cube.obj";
+const std::string SPHERE_PATH = "resources/sphere.obj";
 const std::string DIFFUSE = "resources/vehicle_diffuse.png";
 const std::string NORMAL_MAP = "resources/vehicle_normal.png";
 const std::string GLOSS_MAP = "resources/vehicle_gloss.png";
@@ -67,6 +69,7 @@ private:
 	
 	std::vector<Mesh> meshes;
 	std::vector<std::string> mapStrings{ DIFFUSE, NORMAL_MAP, GLOSS_MAP, SPECULAR_MAP };
+	std::vector<std::string> objStrings{ MODEL_PATH, CUBE_PATH, SPHERE_PATH };
 	//VkDescriptorPool descriptorPool;
 	VkDescriptorSetLayout descriptorSetLayout;
 	//std::vector<void*> uniformBuffersMapped = {nullptr};
@@ -116,15 +119,16 @@ private:
 		createDepthResources();
 		createFrameBuffers();
 
-		meshes.resize(2);
-		positions.push_back(glm::vec3(50, 0, 10));
-		positions.push_back(glm::vec3(25, 0, 0));
+		meshes.resize(3);
+		positions.push_back(glm::vec3(50, 0, 0));
+		positions.push_back(glm::vec3(7, 0, 5));
+		positions.push_back(glm::vec3(7, 0, -5));
 	
 		int positionIndex = 0;
 		for (auto& mesh : meshes)
 		{
 			//start splitting for meshes.
-			LoadModel(mesh, positions[positionIndex]);
+			LoadModel(mesh, positions[positionIndex], objStrings[positionIndex]);
 			mesh.VkImageVector.resize(4);
 			mesh.VkTextureMemoryVector.resize(4);
 			mesh.VkImageViewVector.resize(4);
@@ -491,14 +495,14 @@ private:
 	}
 
 	//loading Model
-	void LoadModel(Mesh& mesh, glm::vec3 position)
+	void LoadModel(Mesh& mesh, glm::vec3 position, std::string& path)
 	{
 		tinyobj::attrib_t attrib;
 		std::vector<tinyobj::shape_t> shapes;
 		std::vector<tinyobj::material_t> materials;
 		std::string warn, err;
 
-		if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, MODEL_PATH.c_str())) 
+		if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, path.c_str())) 
 		{
 			throw std::runtime_error(warn + err);
 		}
