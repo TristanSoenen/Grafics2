@@ -21,13 +21,15 @@ void VulkanBase::initWindow()
 		});
 }
 
-void VulkanBase::drawScene(Mesh& mesh) 
+void VulkanBase::drawScene() 
 {
-		std::cout << mesh.vertices[0].pos.x << "\n";
+	for (auto& mesh : meshes)
+	{
 		VkBuffer vertexBuffers[] = { mesh.vertexBuffer };
 		VkDeviceSize offsets[] = { 0 };
 		vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
 		vkCmdBindIndexBuffer(commandBuffer, mesh.indexBuffer, 0, VK_INDEX_TYPE_UINT32);
 		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &mesh.descriptorSets[currentFrame], 0, nullptr);
 		vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(mesh.indices.size()), 1, 0, 0, 0);
+	}
 }

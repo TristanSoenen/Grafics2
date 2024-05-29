@@ -80,7 +80,7 @@ namespace dae
 				origin += deltaTime * cameraSpeed * right;
 			//Update Matrices
 			CalculateViewMatrix();
-			CalculateProjectionMatrix(); //Try to optimize this - should only be called once or when fov/aspectRatio changes
+			CalculateProjectionMatrix();
 		}
 
 		void UpdateYawPlus()

@@ -69,7 +69,7 @@ private:
 	std::vector<std::string> mapStrings{ DIFFUSE, NORMAL_MAP, GLOSS_MAP, SPECULAR_MAP };
 	//VkDescriptorPool descriptorPool;
 	VkDescriptorSetLayout descriptorSetLayout;
-	std::vector<void*> uniformBuffersMapped = {nullptr};
+	//std::vector<void*> uniformBuffersMapped = {nullptr};
 
 	uint32_t currentFrame = 0;
 
@@ -681,18 +681,21 @@ private:
 
 	void updateUniformBuffer(uint32_t currentImage)
 	{
-		static auto startTime = std::chrono::high_resolution_clock::now();
-		auto currentTime = std::chrono::high_resolution_clock::now();
-		float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+		for (auto& mesh : meshes)
+		{
+			static auto startTime = std::chrono::high_resolution_clock::now();
+			auto currentTime = std::chrono::high_resolution_clock::now();
+			float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
-		UniformBufferObject ubo{};
-		ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.f));
-		ubo.view = camera.GetViewMatrix();
-		ubo.proj = camera.GetProjectionMatrix();
-		ubo.proj[1][1] *= -1;
-		
+			UniformBufferObject ubo{};
+			ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.f));
+			ubo.view = camera.GetViewMatrix();
+			ubo.proj = camera.GetProjectionMatrix();
+			ubo.proj[1][1] *= -1;
 
-		memcpy(uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
+
+			memcpy(mesh.uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
+		}
 	}
 
 	void createUniformBuffers(Mesh& mesh)
@@ -701,13 +704,13 @@ private:
 
 		mesh.uniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
 		mesh.uniformBuffersMemory.resize(MAX_FRAMES_IN_FLIGHT);
-		uniformBuffersMapped.resize(MAX_FRAMES_IN_FLIGHT);
+		mesh.uniformBuffersMapped.resize(MAX_FRAMES_IN_FLIGHT);
 		
 
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 			m_Bufferclass.createBuffer(device, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, mesh.uniformBuffers[i], mesh.uniformBuffersMemory[i]);
 
-			vkMapMemory(device, mesh.uniformBuffersMemory[i], 0, bufferSize, 0, &uniformBuffersMapped[i]);
+			vkMapMemory(device, mesh.uniformBuffersMemory[i], 0, bufferSize, 0, &mesh.uniformBuffersMapped[i]);
 		}
 	}
 
@@ -734,7 +737,7 @@ private:
 
 
 	void initWindow();
-	void drawScene(Mesh& mesh);
+	void drawScene();
 
 	// Week 02
 	// Queue families
