@@ -48,7 +48,6 @@ void VulkanBase::recordCommandBuffer(VkCommandBuffer commandBuffer, uint32_t ima
 
 void VulkanBase::drawFrame(uint32_t imageIndex) 
 {
-	//m_UniBufferClass.updateUniformBuffer(device, currentFrame, swapChainExtent, uniformBuffersMapped);
 	updateUniformBuffer(currentFrame);
 
 	VkSubmitInfo submitInfo{};

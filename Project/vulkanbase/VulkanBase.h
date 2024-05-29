@@ -67,23 +67,9 @@ private:
 	
 	std::vector<Mesh> meshes;
 	std::vector<std::string> mapStrings{ DIFFUSE, NORMAL_MAP, GLOSS_MAP, SPECULAR_MAP };
-	//std::vector<Vertex> vertices;
-	//std::vector<uint32_t> indices;
-
-	//VkBuffer vertexBuffer;
-	//VkDeviceMemory vertexBufferMemory;
-	//VkBuffer indexBuffer;
-	//VkDeviceMemory indexBufferMemory;
-
 	VkDescriptorPool descriptorPool;
-	//std::vector<VkDescriptorSet> descriptorSets;
 	VkDescriptorSetLayout descriptorSetLayout;
-
-	//std::vector<VkBuffer> uniformBuffers;
-	//std::vector<VkDeviceMemory> uniformBuffersMemory;
 	std::vector<void*> uniformBuffersMapped = {nullptr};
-
-
 
 	uint32_t currentFrame = 0;
 
@@ -95,18 +81,11 @@ private:
 	VkDeviceMemory colorImageMemory;
 	VkImageView colorImageView;
 
-	std::vector<VkImage> VkImageVector;
-	std::vector<VkDeviceMemory> VkTextureMemoryVector;
-	std::vector<VkImageView> VkImageViewVector;
-	std::vector<VkSampler> VkSamplerVector;
-
 	glm::vec2 dragstart{};
 	glm::vec2 rotation{};
 
 	dae::Camera camera{ window, glm::vec3{0.0f, 0.0f, 0.0f}, 90.0f};
 	float lastFrameTime = 0.0f;
-
-
 	
 	void initVulkan()
 	{
@@ -697,7 +676,7 @@ private:
 		UniformBufferObject ubo{};
 		ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.f));
 		ubo.view = camera.GetViewMatrix();
-		ubo.proj = camera.GetProjectionMatrix();//glm::perspective(glm::radians(45.0f), swapChainExtent.width / (float)swapChainExtent.height, 0.1f, 20.0f);
+		ubo.proj = camera.GetProjectionMatrix();
 		ubo.proj[1][1] *= -1;
 		
 
