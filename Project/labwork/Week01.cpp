@@ -24,10 +24,10 @@ void VulkanBase::initWindow()
 void VulkanBase::drawScene() 
 {
 	//triangle mesh here
-	VkBuffer vertexBuffers[] = { vertexBuffer };
+	VkBuffer vertexBuffers[] = { meshes[0].vertexBuffer };
 	VkDeviceSize offsets[] = { 0 };
 	vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
-	vkCmdBindIndexBuffer(commandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT32);
-	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &descriptorSets[currentFrame], 0, nullptr);
-	vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+	vkCmdBindIndexBuffer(commandBuffer, meshes[0].indexBuffer, 0, VK_INDEX_TYPE_UINT32);
+	vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1, &meshes[0].descriptorSets[currentFrame], 0, nullptr);
+	vkCmdDrawIndexed(commandBuffer, static_cast<uint32_t>(meshes[0].indices.size()), 1, 0, 0, 0);
 }

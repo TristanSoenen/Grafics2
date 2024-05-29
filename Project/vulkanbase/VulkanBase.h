@@ -66,22 +66,24 @@ private:
 	VkSampleCountFlagBits msaaSamples = VK_SAMPLE_COUNT_1_BIT;
 	
 	std::vector<Mesh> meshes;
-	std::vector<Vertex> vertices;
-	std::vector<uint32_t> indices;
+	std::vector<std::string> mapStrings{ DIFFUSE, NORMAL_MAP, GLOSS_MAP, SPECULAR_MAP };
+	//std::vector<Vertex> vertices;
+	//std::vector<uint32_t> indices;
 
-	VkBuffer vertexBuffer;
-	VkDeviceMemory vertexBufferMemory;
-	VkBuffer indexBuffer;
-	VkDeviceMemory indexBufferMemory;
-
-	VkDescriptorSetLayout descriptorSetLayout;
-
-	std::vector<VkBuffer> uniformBuffers;
-	std::vector<VkDeviceMemory> uniformBuffersMemory;
-	std::vector<void*> uniformBuffersMapped = {nullptr};
+	//VkBuffer vertexBuffer;
+	//VkDeviceMemory vertexBufferMemory;
+	//VkBuffer indexBuffer;
+	//VkDeviceMemory indexBufferMemory;
 
 	VkDescriptorPool descriptorPool;
-	std::vector<VkDescriptorSet> descriptorSets;
+	//std::vector<VkDescriptorSet> descriptorSets;
+	VkDescriptorSetLayout descriptorSetLayout;
+
+	//std::vector<VkBuffer> uniformBuffers;
+	//std::vector<VkDeviceMemory> uniformBuffersMemory;
+	std::vector<void*> uniformBuffersMapped = {nullptr};
+
+
 
 	uint32_t currentFrame = 0;
 
@@ -103,6 +105,9 @@ private:
 
 	dae::Camera camera{ window, glm::vec3{0.0f, 0.0f, 0.0f}, 90.0f};
 	float lastFrameTime = 0.0f;
+
+
+	
 	void initVulkan()
 	{
 		// week 06
@@ -130,41 +135,32 @@ private:
 		createDepthResources();
 		createFrameBuffers();
 
-		//for (auto& mesh : meshes)
-		//{
+		meshes.resize(1);
+		for (auto& mesh : meshes)
+		{
 			//start splitting for meshes.
-			LoadModel();
-			VkImageVector.resize(4);
-			VkTextureMemoryVector.resize(4);
-			VkImageViewVector.resize(4);
-			VkSamplerVector.resize(4);
+			LoadModel(glm::vec3(25, 0, 0));
+			mesh.VkImageVector.resize(4);
+			mesh.VkTextureMemoryVector.resize(4);
+			mesh.VkImageViewVector.resize(4);
+			mesh.VkSamplerVector.resize(4);
 
 			//CREATE DIFFUSE
-			createTextureImage(DIFFUSE, VkImageVector[0], VkTextureMemoryVector[0]);
-			createTextureImageView(VkImageViewVector[0], VkImageVector[0]);
-			createTextureSampler(VkSamplerVector[0]);
 
-			//CREATE NORMAL
-			createTextureImage(NORMAL_MAP, VkImageVector[1], VkTextureMemoryVector[1]);
-			createTextureImageView(VkImageViewVector[1], VkImageVector[1]);
-			createTextureSampler(VkSamplerVector[1]);
+			for (int i = 0; i < mapStrings.size(); i++)
+			{
+				createTextureImage(mapStrings[i], mesh.VkImageVector[i], mesh.VkTextureMemoryVector[i]);
+				createTextureImageView(mesh.VkImageViewVector[i], mesh.VkImageVector[i]);
+				createTextureSampler(mesh.VkSamplerVector[i]);
+			}
 
-			createTextureImage(GLOSS_MAP, VkImageVector[2], VkTextureMemoryVector[2]);
-			createTextureImageView(VkImageViewVector[2], VkImageVector[2]);
-			createTextureSampler(VkSamplerVector[2]);
-
-			createTextureImage(SPECULAR_MAP, VkImageVector[3], VkTextureMemoryVector[3]);
-			createTextureImageView(VkImageViewVector[3], VkImageVector[3]);
-			createTextureSampler(VkSamplerVector[3]);
-
-			m_Bufferclass.createVertexBuffer(device, vertices, vertexBuffer, vertexBufferMemory);
-			m_Bufferclass.createIndexBuffer(device, indices, indexBuffer, indexBufferMemory);
+			m_Bufferclass.createVertexBuffer(device, mesh.vertices, mesh.vertexBuffer, mesh.vertexBufferMemory);
+			m_Bufferclass.createIndexBuffer(device, mesh.indices, mesh.indexBuffer, mesh.indexBufferMemory);
 
 			createUniformBuffers();
-			//m_UniBufferClass.createUniformBuffers(device, uniformBuffers, uniformBuffersMemory, uniformBuffersMapped);
 			m_Descriptorclass.createDescriptorPool(device, descriptorPool);
-			m_Descriptorclass.createDescriptorSets(device, uniformBuffers, descriptorPool, descriptorSets, descriptorSetLayout, VkImageViewVector, VkSamplerVector);
-		//}
+			m_Descriptorclass.createDescriptorSets(device, mesh.uniformBuffers, descriptorPool, mesh.descriptorSets, descriptorSetLayout, mesh.VkImageViewVector, mesh.VkSamplerVector);
+		}
 		createCommandBuffer();
 
 		// week 06
@@ -189,8 +185,8 @@ private:
 	void cleanup() 
 	{
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-			vkDestroyBuffer(device, uniformBuffers[i], nullptr);
-			vkFreeMemory(device, uniformBuffersMemory[i], nullptr);
+			vkDestroyBuffer(device, meshes[0].uniformBuffers[i], nullptr);
+			vkFreeMemory(device, meshes[0].uniformBuffersMemory[i], nullptr);
 		}
 
 		vkDestroyImageView(device, colorImageView, nullptr);
@@ -200,31 +196,31 @@ private:
 		vkDestroyDescriptorPool(device, descriptorPool, nullptr);
 		vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
 
-		for (int i = 0; i < VkSamplerVector.size(); i++)
+		for (int i = 0; i < meshes[0].VkSamplerVector.size(); i++)
 		{
-			vkDestroySampler(device, VkSamplerVector[i], nullptr);
+			vkDestroySampler(device, meshes[0].VkSamplerVector[i], nullptr);
 		}
 
-		for (int i = 0; i < VkImageViewVector.size(); i++)
+		for (int i = 0; i < meshes[0].VkImageViewVector.size(); i++)
 		{
-			vkDestroyImageView(device, VkImageViewVector[i], nullptr);
+			vkDestroyImageView(device, meshes[0].VkImageViewVector[i], nullptr);
 		}
 
-		for (int i = 0; i < VkImageVector.size(); i++)
+		for (int i = 0; i < meshes[0].VkImageVector.size(); i++)
 		{
-			vkDestroyImage(device, VkImageVector[i], nullptr);
+			vkDestroyImage(device, meshes[0].VkImageVector[i], nullptr);
 		}
 
-		for (int i = 0; i < VkTextureMemoryVector.size(); i++)
+		for (int i = 0; i < meshes[0].VkTextureMemoryVector.size(); i++)
 		{
-			vkFreeMemory(device, VkTextureMemoryVector[i], nullptr);
+			vkFreeMemory(device, meshes[0].VkTextureMemoryVector[i], nullptr);
 		}
 
-		vkDestroyBuffer(device, indexBuffer, nullptr);
-		vkFreeMemory(device, indexBufferMemory, nullptr);
+		vkDestroyBuffer(device, meshes[0].indexBuffer, nullptr);
+		vkFreeMemory(device, meshes[0].indexBufferMemory, nullptr);
 
-		vkDestroyBuffer(device, vertexBuffer, nullptr);
-		vkFreeMemory(device, vertexBufferMemory, nullptr);
+		vkDestroyBuffer(device, meshes[0].vertexBuffer, nullptr);
+		vkFreeMemory(device, meshes[0].vertexBufferMemory, nullptr);
 
 		vkDestroySemaphore(device, renderFinishedSemaphore, nullptr);
 		vkDestroySemaphore(device, imageAvailableSemaphore, nullptr);
@@ -504,7 +500,7 @@ private:
 	}
 
 	//loading Model
-	void LoadModel()
+	void LoadModel(glm::vec3 position)
 	{
 		tinyobj::attrib_t attrib;
 		std::vector<tinyobj::shape_t> shapes;
@@ -517,8 +513,9 @@ private:
 		}
 
 
+		//chat gpt helpend with the trs
 		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(25, 0, 0)); // Translation
+		model = glm::translate(model, position); // Translation
 		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0, 1.0f, 0)); // Rotation
 		//model = glm::scale(model, glm::vec3(scaleX, scaleY, scaleZ)); // Scaling
 		//std::unordered_map<Vertex, uint32_t> uniqueVertices{};
@@ -561,22 +558,22 @@ private:
 				}*/
 
 
-				vertices.push_back(vertex);
+				meshes[0].vertices.push_back(vertex);
 
-				indices.push_back(indices.size());
+				meshes[0].indices.push_back(meshes[0].indices.size());
 			}
 
-			for (uint32_t i = 0; i < indices.size(); i += 3)
+			for (uint32_t i = 0; i < meshes[0].indices.size(); i += 3)
 			{
-				uint32_t index0 = indices[i];
-				uint32_t index1 = indices[size_t(i) + 1];
-				uint32_t index2 = indices[size_t(i) + 2];
-				const glm::vec3& p0 = vertices[index0].pos;
-				const glm::vec3& p1 = vertices[index1].pos;
-				const glm::vec3& p2 = vertices[index2].pos;
-				const glm::vec2 uv0 = vertices[index0].texCoord;
-				const glm::vec2 uv1 = vertices[index1].texCoord;
-				const glm::vec2 uv2 = vertices[index2].texCoord;
+				uint32_t index0 = meshes[0].indices[i];
+				uint32_t index1 = meshes[0].indices[size_t(i) + 1];
+				uint32_t index2 = meshes[0].indices[size_t(i) + 2];
+				const glm::vec3& p0 = meshes[0].vertices[index0].pos;
+				const glm::vec3& p1 = meshes[0].vertices[index1].pos;
+				const glm::vec3& p2 = meshes[0].vertices[index2].pos;
+				const glm::vec2 uv0 = meshes[0].vertices[index0].texCoord;
+				const glm::vec2 uv1 = meshes[0].vertices[index1].texCoord;
+				const glm::vec2 uv2 = meshes[0].vertices[index2].texCoord;
 				const glm::vec3 edge0 = p1 - p0;
 				const glm::vec3 edge1 = p2 - p0;
 				const glm::vec2 diffX = glm::vec2(uv1.x - uv0.x, uv2.x - uv0.x);
@@ -584,12 +581,12 @@ private:
 				float r = 1.0f / (diffX.x * diffY.y - diffX.y - diffY.x);
 
 				glm::vec3 tangent = (edge0 * diffY.y - edge1 * diffX.x) * r;
-				vertices[index0].tangent += tangent;
-				vertices[index1].tangent += tangent;
-				vertices[index2].tangent += tangent;
+				meshes[0].vertices[index0].tangent += tangent;
+				meshes[0].vertices[index1].tangent += tangent;
+				meshes[0].vertices[index2].tangent += tangent;
 			}
 
-			for (auto& v : vertices)
+			for (auto& v : meshes[0].vertices)
 			{
 				glm::vec3 projection = (glm::dot(v.tangent, v.normal) / glm::dot(v.normal, v.normal)) * v.normal;
 				v.tangent = v.tangent - projection;
@@ -711,15 +708,15 @@ private:
 	{
 		VkDeviceSize bufferSize = sizeof(UniformBufferObject);
 
-		uniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
-		uniformBuffersMemory.resize(MAX_FRAMES_IN_FLIGHT);
+		meshes[0].uniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+		meshes[0].uniformBuffersMemory.resize(MAX_FRAMES_IN_FLIGHT);
 		uniformBuffersMapped.resize(MAX_FRAMES_IN_FLIGHT);
 		
 
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-			m_Bufferclass.createBuffer(device, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, uniformBuffers[i], uniformBuffersMemory[i]);
+			m_Bufferclass.createBuffer(device, bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, meshes[0].uniformBuffers[i], meshes[0].uniformBuffersMemory[i]);
 
-			vkMapMemory(device, uniformBuffersMemory[i], 0, bufferSize, 0, &uniformBuffersMapped[i]);
+			vkMapMemory(device, meshes[0].uniformBuffersMemory[i], 0, bufferSize, 0, &uniformBuffersMapped[i]);
 		}
 	}
 

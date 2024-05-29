@@ -88,8 +88,19 @@ struct Mesh
 {
 	std::vector<Vertex> vertices;
 	std::vector<uint32_t> indices;
+
 	std::vector<VkImage> VkImageVector;
 	std::vector<VkDeviceMemory> VkTextureMemoryVector;
 	std::vector<VkImageView> VkImageViewVector;
 	std::vector<VkSampler> VkSamplerVector;
+
+	VkBuffer vertexBuffer;
+	VkDeviceMemory vertexBufferMemory;
+	VkBuffer indexBuffer;
+	VkDeviceMemory indexBufferMemory;
+
+	std::vector<VkBuffer> uniformBuffers;
+	std::vector<VkDeviceMemory> uniformBuffersMemory;
+
+	std::vector<VkDescriptorSet> descriptorSets;
 };
