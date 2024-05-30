@@ -87,6 +87,8 @@ private:
 
 	std::vector<glm::vec3> positions;
 
+	std::vector<objectInfo> sceneObjectsInfo;
+
 	dae::Camera camera{ window, glm::vec3{0.0f, 0.0f, 0.0f}, 90.0f};
 	float lastFrameTime = 0.0f;
 	int m_CurrentIndex = 0;
@@ -119,6 +121,7 @@ private:
 		createDepthResources();
 		createFrameBuffers();
 
+		ReadJSON(sceneObjectsInfo);
 		meshes.resize(3);
 		positions.push_back(glm::vec3(50, 0, 0));
 		positions.push_back(glm::vec3(7, 0, 5));
@@ -319,6 +322,11 @@ private:
 		{
 			m_KeyPress = false;
 		}
+	}
+
+	void ReadJSON(std::vector<objectInfo>& objectinfoVector)
+	{
+
 	}
 
 	// Texture

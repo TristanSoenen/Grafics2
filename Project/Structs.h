@@ -11,6 +11,14 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
 
+struct objectInfo
+{
+	std::string path;
+	glm::vec3 position;
+	glm::vec3 scale;
+	std::vector<std::string> maps;
+};
+
 struct UniformBufferObject 
 {
 	glm::mat4 model;
