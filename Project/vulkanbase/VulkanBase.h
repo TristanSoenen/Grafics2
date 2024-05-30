@@ -70,9 +70,7 @@ private:
 	std::vector<Mesh> meshes;
 	std::vector<std::string> mapStrings{ DIFFUSE, NORMAL_MAP, GLOSS_MAP, SPECULAR_MAP };
 	std::vector<std::string> objStrings{ MODEL_PATH, CUBE_PATH, SPHERE_PATH };
-	//VkDescriptorPool descriptorPool;
 	VkDescriptorSetLayout descriptorSetLayout;
-	//std::vector<void*> uniformBuffersMapped = {nullptr};
 
 	uint32_t currentFrame = 0;
 
@@ -91,7 +89,9 @@ private:
 
 	dae::Camera camera{ window, glm::vec3{0.0f, 0.0f, 0.0f}, 90.0f};
 	float lastFrameTime = 0.0f;
-	
+	int m_CurrentIndex = 0;
+	bool m_KeyPress = false;
+
 	void initVulkan()
 	{
 		// week 06
@@ -165,6 +165,7 @@ private:
 			float deltaTime = currentFrameTime - lastFrameTime;
 			lastFrameTime = currentFrameTime;
 			camera.Update(deltaTime, window);
+			ChangeState();
 			// week 06
 			drawFrame();
 		}
@@ -297,6 +298,26 @@ private:
 			glfwGetCursorPos(window, &xpos, &ypos);
 			//dragstart.x = static_cast<float>(xpos);
 			dragstart.y = static_cast<float>(ypos);
+		}
+	}
+
+	void VulkanBase::ChangeState()
+	{
+		int state = glfwGetKey(window, GLFW_KEY_T);
+		
+		if (state == GLFW_PRESS && m_KeyPress == false)
+		{
+			m_KeyPress = true;
+			std::cout << m_CurrentIndex << "\n";
+			++m_CurrentIndex;
+			if (m_CurrentIndex > 3)
+			{
+				m_CurrentIndex = 0;
+			}
+		}
+		if(state == GLFW_RELEASE && m_KeyPress == true)
+		{
+			m_KeyPress = false;
 		}
 	}
 
@@ -695,11 +716,14 @@ private:
 			ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.f));
 			ubo.view = camera.GetViewMatrix();
 			ubo.proj = camera.GetProjectionMatrix();
+			ubo.mapindex = m_CurrentIndex;
 			ubo.proj[1][1] *= -1;
 
 
 			memcpy(mesh.uniformBuffersMapped[currentImage], &ubo, sizeof(ubo));
 		}
+
+
 	}
 
 	void createUniformBuffers(Mesh& mesh)
