@@ -11,6 +11,7 @@
 #include "Structs.h"
 #include "tiny_obj_loader.h"
 #include "stb_image.h"
+#include "nlohmann/json.hpp"
 #include <iostream>
 #include <stdexcept>
 
@@ -34,14 +35,7 @@
 #include <chrono>
 #include <unordered_map>
 #include "Camera.h"
-
-const std::string MODEL_PATH = "resources/vehicle.obj";
-const std::string CUBE_PATH = "resources/cube.obj";
-const std::string SPHERE_PATH = "resources/sphere.obj";
-const std::string DIFFUSE = "resources/vehicle_diffuse.png";
-const std::string NORMAL_MAP = "resources/vehicle_normal.png";
-const std::string GLOSS_MAP = "resources/vehicle_gloss.png";
-const std::string SPECULAR_MAP = "resources/vehicle_specular.png";
+#include <fstream>
 const int MAX_FRAMES_IN_FLIGHT = 5; //This is important for the amount of descriptors you want to have the buffer + amount of textures
 
 const std::vector<const char*> validationLayers = {
@@ -68,8 +62,6 @@ private:
 	VkSampleCountFlagBits msaaSamples = VK_SAMPLE_COUNT_1_BIT;
 	
 	std::vector<Mesh> meshes;
-	std::vector<std::string> mapStrings{ DIFFUSE, NORMAL_MAP, GLOSS_MAP, SPECULAR_MAP };
-	std::vector<std::string> objStrings{ MODEL_PATH, CUBE_PATH, SPHERE_PATH };
 	VkDescriptorSetLayout descriptorSetLayout;
 
 	uint32_t currentFrame = 0;
@@ -84,9 +76,6 @@ private:
 
 	glm::vec2 dragstart{};
 	glm::vec2 rotation{};
-
-	std::vector<glm::vec3> positions;
-
 	std::vector<objectInfo> sceneObjectsInfo;
 
 	dae::Camera camera{ window, glm::vec3{0.0f, 0.0f, 0.0f}, 90.0f};
@@ -122,25 +111,21 @@ private:
 		createFrameBuffers();
 
 		ReadJSON(sceneObjectsInfo);
-		meshes.resize(3);
-		positions.push_back(glm::vec3(30, 0, 0));
-		positions.push_back(glm::vec3(7, 0, 5));
-		positions.push_back(glm::vec3(7, 0, -5));
-	
+		meshes.resize(sceneObjectsInfo.size());
 		int positionIndex = 0;
 		for (auto& mesh : meshes)
 		{
 			//start splitting for meshes.
-			LoadModel(mesh, positions[positionIndex], objStrings[positionIndex]);
+			LoadModel(mesh, sceneObjectsInfo[positionIndex].position, sceneObjectsInfo[positionIndex].path);
 			mesh.VkImageVector.resize(4);
 			mesh.VkTextureMemoryVector.resize(4);
 			mesh.VkImageViewVector.resize(4);
 			mesh.VkSamplerVector.resize(4);
 
 			//Create Textures
-			for (int i = 0; i < mapStrings.size(); i++)
+			for (int i = 0; i < sceneObjectsInfo[positionIndex].maps.size(); i++)
 			{
-				createTextureImage(mapStrings[i], mesh.VkImageVector[i], mesh.VkTextureMemoryVector[i]);
+				createTextureImage(sceneObjectsInfo[positionIndex].maps[i], mesh.VkImageVector[i], mesh.VkTextureMemoryVector[i]);
 				createTextureImageView(mesh.VkImageViewVector[i], mesh.VkImageVector[i]);
 				createTextureSampler(mesh.VkSamplerVector[i]);
 			}
@@ -326,7 +311,24 @@ private:
 
 	void ReadJSON(std::vector<objectInfo>& objectinfoVector)
 	{
-
+		//chat gpt helped with this
+		std::ifstream file("resources/scene.json");
+		if (!file.is_open()) {
+			std::cerr << "Failed to open file\n";
+		}
+		// Parse JSON data
+		nlohmann::json scene_data;
+		file >> scene_data;
+		file.close();
+		// Access your scene data and store in variables
+		for (const auto& obj : scene_data["objects"]) 
+		{
+			objectInfo object;
+			object.path = obj["path"];
+			object.position = glm::vec3{ obj["position"][0], obj["position"][1], obj["position"][2] };
+			object.maps = obj["maps"];
+			objectinfoVector.push_back(object);
+		}
 	}
 
 	// Texture

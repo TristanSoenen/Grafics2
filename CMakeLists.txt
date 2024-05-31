@@ -44,6 +44,14 @@ endif()
 FetchContent_MakeAvailable(stb)
 add_library(stb INTERFACE)
 target_include_directories(stb INTERFACE ${stb_SOURCE_DIR})
+
+FetchContent_Declare(
+	json
+	GIT_REPOSITORY https://github.com/nlohmann/json.git
+	GIT_TAG v3.11.3
+	GIT_SHALLOW TRUE
+)
+FetchContent_MakeAvailable(json)
 # Find the required packages
 find_package(Vulkan REQUIRED)
 

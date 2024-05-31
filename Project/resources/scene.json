@@ -1,0 +1,37 @@
+{
+  "objects": [
+    {
+      "path": "resources/vehicle.obj",
+      "position": [50, 0, 0],
+      "scale": [1, 1, 1],
+      "maps": [
+	"resources/vehicle_diffuse.png",
+	"resources/vehicle_normal.png",
+	"resources/vehicle_gloss.png",
+	"resources/vehicle_specular.png"
+	]
+    },
+    {
+      "path": "resources/cube.obj",
+      "position": [7, 0, 5],
+      "scale": [2, 2, 2],
+      "maps": [
+	"resources/vehicle_diffuse.png",
+	"resources/vehicle_normal.png",
+	"resources/vehicle_gloss.png",
+	"resources/vehicle_specular.png"
+	]
+    },
+    {
+      "path": "resources/sphere.obj",
+      "position": [7, 0, -5],
+      "scale": [2, 2, 2],
+      "maps": [
+	"resources/vehicle_diffuse.png",
+	"resources/vehicle_normal.png",
+	"resources/vehicle_gloss.png",
+	"resources/vehicle_specular.png"
+	]
+    }
+  ]
+}

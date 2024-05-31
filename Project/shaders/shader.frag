@@ -9,7 +9,7 @@ layout(location = 5) in mat4 fraginvView;
 layout(location = 10) in vec3 fragWorldPos;
 
 layout(location = 0) out vec4 outColor;
-layout (location = 1) out vec3 outNormal;
+layout(location = 1) out vec3 outNormal;
 
 layout(binding = 1) uniform sampler2D Diffuse;
 layout(binding = 2) uniform sampler2D Normal;
