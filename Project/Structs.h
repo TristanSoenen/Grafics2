@@ -15,6 +15,7 @@ struct objectInfo
 {
 	std::string path;
 	glm::vec3 position;
+	float rotationAngle;
 	glm::vec3 scale;
 	std::vector<std::string> maps;
 };

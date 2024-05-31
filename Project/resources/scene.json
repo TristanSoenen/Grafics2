@@ -2,7 +2,8 @@
   "objects": [
     {
       "path": "resources/vehicle.obj",
-      "position": [50, 0, 0],
+      "position": [30, 0, 0],
+      "rotationAngle": 180,
       "scale": [1, 1, 1],
       "maps": [
 	"resources/vehicle_diffuse.png",
@@ -14,6 +15,7 @@
     {
       "path": "resources/cube.obj",
       "position": [7, 0, 5],
+      "rotationAngle": 0,
       "scale": [2, 2, 2],
       "maps": [
 	"resources/vehicle_diffuse.png",
@@ -25,6 +27,7 @@
     {
       "path": "resources/sphere.obj",
       "position": [7, 0, -5],
+      "rotationAngle": 0,
       "scale": [2, 2, 2],
       "maps": [
 	"resources/vehicle_diffuse.png",

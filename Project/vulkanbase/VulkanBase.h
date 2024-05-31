@@ -116,7 +116,7 @@ private:
 		for (auto& mesh : meshes)
 		{
 			//start splitting for meshes.
-			LoadModel(mesh, sceneObjectsInfo[positionIndex].position, sceneObjectsInfo[positionIndex].path);
+			LoadModel(mesh, sceneObjectsInfo[positionIndex].position, sceneObjectsInfo[positionIndex].scale, sceneObjectsInfo[positionIndex].rotationAngle, sceneObjectsInfo[positionIndex].path);
 			mesh.VkImageVector.resize(4);
 			mesh.VkTextureMemoryVector.resize(4);
 			mesh.VkImageViewVector.resize(4);
@@ -291,12 +291,11 @@ private:
 
 	void VulkanBase::ChangeState()
 	{
-		int state = glfwGetKey(window, GLFW_KEY_T);
+		int state = glfwGetKey(window, GLFW_KEY_F6);
 		
 		if (state == GLFW_PRESS && m_KeyPress == false)
 		{
 			m_KeyPress = true;
-			std::cout << m_CurrentIndex << "\n";
 			++m_CurrentIndex;
 			if (m_CurrentIndex > 3)
 			{
@@ -326,6 +325,8 @@ private:
 			objectInfo object;
 			object.path = obj["path"];
 			object.position = glm::vec3{ obj["position"][0], obj["position"][1], obj["position"][2] };
+			object.scale = glm::vec3{ obj["scale"][0], obj["scale"][1], obj["scale"][2] };
+			object.rotationAngle = obj["rotationAngle"];
 			object.maps = obj["maps"];
 			objectinfoVector.push_back(object);
 		}
@@ -526,7 +527,7 @@ private:
 	}
 
 	//loading Model
-	void LoadModel(Mesh& mesh, glm::vec3 position, std::string& path)
+	void LoadModel(Mesh& mesh, glm::vec3 position, glm::vec3 scale, float angle, std::string& path)
 	{
 		tinyobj::attrib_t attrib;
 		std::vector<tinyobj::shape_t> shapes;
@@ -542,8 +543,8 @@ private:
 		//chat gpt helpend with the trs
 		glm::mat4 model = glm::mat4(1.0f);
 		model = glm::translate(model, position); // Translation
-		model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0, 1.0f, 0)); // Rotation
-		//model = glm::scale(model, glm::vec3(scaleX, scaleY, scaleZ)); // Scaling
+		model = glm::rotate(model, glm::radians(angle), glm::vec3(0, 1.0f, 0)); // Rotation
+		model = glm::scale(model, scale); // Scaling
 		//std::unordered_map<Vertex, uint32_t> uniqueVertices{};
 
 		for (const auto& shape : shapes)
