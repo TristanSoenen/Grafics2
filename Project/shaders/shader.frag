@@ -71,23 +71,25 @@ void main()
     if(fragmapIndex == 0)
     {
         //Diffuse
-        color = observedArea * ( lambertDiffuse + ambient ) ;
+        color = observedArea * ( lambertDiffuse + ambient );
+        outColor = vec4(color, 1.0);
     }
     else if(fragmapIndex == 1)
     {
         //Normal
         color = sampledNormal;
+        outColor = vec4(color, 1.0);
     }
     else if(fragmapIndex == 2)
     {
         //Specular
         color = observedArea * ( lambertPhong + ambient );
+        outColor = vec4(color, 1.0);
     }
     else if(fragmapIndex == 3)
     {
         //combined
         color = observedArea * (( lambertDiffuse + lambertPhong ) + ambient );
+        outColor = vec4(color, 1.0);
     }
-    outColor = vec4(color, 1.0);
-
 }
