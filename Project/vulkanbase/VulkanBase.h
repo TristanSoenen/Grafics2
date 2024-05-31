@@ -91,7 +91,7 @@ private:
 
 	dae::Camera camera{ window, glm::vec3{0.0f, 0.0f, 0.0f}, 90.0f};
 	float lastFrameTime = 0.0f;
-	int m_CurrentIndex = 0;
+	int m_CurrentIndex = 3;
 	bool m_KeyPress = false;
 
 	void initVulkan()
@@ -123,7 +123,7 @@ private:
 
 		ReadJSON(sceneObjectsInfo);
 		meshes.resize(3);
-		positions.push_back(glm::vec3(50, 0, 0));
+		positions.push_back(glm::vec3(30, 0, 0));
 		positions.push_back(glm::vec3(7, 0, 5));
 		positions.push_back(glm::vec3(7, 0, -5));
 	
@@ -540,7 +540,7 @@ private:
 		//chat gpt helpend with the trs
 		glm::mat4 model = glm::mat4(1.0f);
 		model = glm::translate(model, position); // Translation
-		model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0, 1.0f, 0)); // Rotation
+		model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0, 1.0f, 0)); // Rotation
 		//model = glm::scale(model, glm::vec3(scaleX, scaleY, scaleZ)); // Scaling
 		//std::unordered_map<Vertex, uint32_t> uniqueVertices{};
 
@@ -724,6 +724,7 @@ private:
 			ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(0.0f), glm::vec3(0.0f, 1.0f, 0.f));
 			ubo.view = camera.GetViewMatrix();
 			ubo.proj = camera.GetProjectionMatrix();
+			ubo.invView = camera.invViewMatrix;
 			ubo.mapindex = m_CurrentIndex;
 			ubo.proj[1][1] *= -1;
 

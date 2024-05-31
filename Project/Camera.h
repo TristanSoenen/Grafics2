@@ -57,6 +57,7 @@ namespace dae
 			up = glm::normalize(glm::cross(right, forward));
 
 			viewMatrix = glm::lookAt(origin, origin + forward, up);
+			invViewMatrix = glm::inverse(viewMatrix);
 		}
 
 		void CalculateProjectionMatrix()
