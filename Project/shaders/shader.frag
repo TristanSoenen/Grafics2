@@ -42,6 +42,7 @@ vec3 Phong(vec3 color, float exp, vec3 l, vec3 v, vec3 n)
 
 void main() 
 {
+    //most of the code is from the gp1 rasterizer project some of it is also chat gpt
     //lights
     const vec3 lightDirection = vec3( 0.577, 0.577, 0.577 );
     const float lightIntensity = 7.0f;
